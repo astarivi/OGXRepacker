@@ -1,0 +1,29 @@
+plugins {
+    id 'java'
+}
+
+group = 'ovh.astarivi.xboxlib'
+version = '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Logger
+    implementation 'org.tinylog:tinylog-api:2.6.2'
+    runtimeOnly 'org.tinylog:tinylog-impl:2.6.2'
+    runtimeOnly 'org.tinylog:slf4j-tinylog:2.6.2'
+
+    implementation 'org.jetbrains:annotations:24.0.1'
+
+    // Testing
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
