@@ -6,7 +6,7 @@ import ovh.astarivi.xboxlib.xdvdfs.base.UnpackImageListener;
 import ovh.astarivi.xboxlib.xdvdfs.exceptions.XDVDFSException;
 import ovh.astarivi.xboxlib.xdvdfs.layout.DirectoryEntry;
 import ovh.astarivi.xboxlib.xdvdfs.layout.Disk;
-import ovh.astarivi.xboxlib.xdvdfs.utils.StringDENPair;
+import ovh.astarivi.xboxlib.xdvdfs.utils.Pair;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -63,7 +63,7 @@ public class UnpackImage {
             }
 
             if (listener != null) listener.onStep(UnpackImageListener.CurrentStep.WALKING_FILE_TREE);
-            ArrayList<StringDENPair> tree = volumeDescriptor.root_table.getFileTree(image);
+            ArrayList<Pair<String, DirectoryEntry.EntryNode>> tree = volumeDescriptor.root_table.getFileTree(image);
 
             Files.createDirectories(to);
 
@@ -72,16 +72,16 @@ public class UnpackImage {
             float totalItems = (float) tree.size();
             int currentItem = 0;
 
-            for (StringDENPair pair : tree) {
+            for (Pair<String, DirectoryEntry.EntryNode> pair : tree) {
                 currentItem++;
 
                 float currentProgress = ((float) currentItem / totalItems) * 100F;
 
-                DirectoryEntry.DiskData diskData = pair.node().node.dirent;
+                DirectoryEntry.DiskData diskData = pair.value().node.dirent;
 
                 String currentFile = "%s/%s (%d bytes) %s".formatted(
-                        pair.parent(),
-                        pair.node().getName(),
+                        pair.key(),
+                        pair.value().getName(),
                         diskData.data.size,
                         diskData.attributes.directory ? "(folder)" : ""
                 ).trim();
@@ -95,14 +95,14 @@ public class UnpackImage {
 
                 String parentPath;
 
-                if (pair.parent().startsWith("/") || pair.parent().startsWith("\\")) {
-                    parentPath = pair.parent().substring(1);
+                if (pair.key().startsWith("/") || pair.key().startsWith("\\")) {
+                    parentPath = pair.key().substring(1);
                 } else {
-                    parentPath = pair.parent();
+                    parentPath = pair.key();
                 }
 
                 Path fullFolderPath = to.resolve(parentPath);
-                Path outputFilePath = fullFolderPath.resolve(pair.node().getName());
+                Path outputFilePath = fullFolderPath.resolve(pair.value().getName());
 
                 Files.createDirectories(fullFolderPath);
 

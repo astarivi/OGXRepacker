@@ -3,8 +3,7 @@ package ovh.astarivi.xboxlib.xdvdfs.layout;
 import org.jetbrains.annotations.Nullable;
 
 import ovh.astarivi.xboxlib.xdvdfs.XDVDFSImage;
-import ovh.astarivi.xboxlib.xdvdfs.utils.StringDENPair;
-import ovh.astarivi.xboxlib.xdvdfs.utils.StringDETPair;
+import ovh.astarivi.xboxlib.xdvdfs.utils.Pair;
 
 import org.tinylog.Logger;
 
@@ -178,28 +177,28 @@ public class DirectoryEntry {
             return dirents;
         }
 
-        public ArrayList<StringDENPair> getFileTree(XDVDFSImage image) throws IOException {
-            ArrayList<StringDENPair> dirents = new ArrayList<>();
+        public ArrayList<Pair<String, EntryNode>> getFileTree(XDVDFSImage image) throws IOException {
+            ArrayList<Pair<String, EntryNode>> dirents = new ArrayList<>();
 
-            ArrayList<StringDETPair> stack = new ArrayList<>();
-            stack.add(new StringDETPair(
+            ArrayList<Pair<String, Table>> stack = new ArrayList<>();
+            stack.add(new Pair<>(
                     "", this.clone()
             ));
 
 
             int stack_length = stack.size();
             for (int i = 0; i < stack_length; i++) {
-                StringDETPair item = stack.get(i);
+                Pair<String, Table> item = stack.get(i);
 
-                ArrayList<EntryNode> children = item.tree().walkTree(image);
+                ArrayList<EntryNode> children = item.value().walkTree(image);
                 for (EntryNode child : children) {
                     Table direntTable = child.node.dirent.getTable();
 
                     if (direntTable != null) {
                         String childName = child.getName();
                         stack.add(
-                                new StringDETPair(
-                                    "%s/%s".formatted(item.parent(), childName),
+                                new Pair<>(
+                                    "%s/%s".formatted(item.key(), childName),
                                     direntTable
                                 )
                         );
@@ -207,8 +206,8 @@ public class DirectoryEntry {
                     }
 
                     dirents.add(
-                            new StringDENPair(
-                                    item.parent(),
+                            new Pair<>(
+                                    item.key(),
                                     child.clone()
                             )
                     );
