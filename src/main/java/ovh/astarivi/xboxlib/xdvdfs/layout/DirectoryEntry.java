@@ -20,13 +20,13 @@ import java.util.ListIterator;
 
 public class DirectoryEntry {
     public static class Table implements Cloneable {
-        public Layout.DiskRegion region;
+        public Disk.Region region;
 
         public Table(ByteBuffer buffer) {
-            region = new Layout.DiskRegion(buffer);
+            region = new Disk.Region(buffer);
         }
 
-        public Table(Layout.DiskRegion region) {
+        public Table(Disk.Region region) {
             this.region = region;
         }
 
@@ -267,14 +267,14 @@ public class DirectoryEntry {
 
     public static class DiskData implements Cloneable{
         // 8 bytes
-        public Layout.DiskRegion data;
+        public Disk.Region data;
         // u8 (1 byte)
         public Attributes attributes;
         // u8 (1 byte)
         public int filename_length;
 
         public DiskData(ByteBuffer buffer) {
-            data = new Layout.DiskRegion(buffer);
+            data = new Disk.Region(buffer);
             attributes = new Attributes(buffer);
             filename_length = Byte.toUnsignedInt(buffer.get());
         }

@@ -59,6 +59,6 @@ public class XDVDFSImage extends RandomAccessFile {
         }
 
         this.close();
-        throw new XDVDFSException("Invalid image, MAGIC not found.");
+        throw new XDVDFSException("Invalid XDVDFS (XISO) image, MAGIC not found.");
     }
 }
