@@ -1,0 +1,17 @@
+[package]
+name = "xdvdfs-jlib"
+description = "Java JNI compatible XDVDFS implementation"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+xdvdfs = { path = "../../xdvdfs/xdvdfs-core", version = "0.8.0" , default-features = false, features = ["std", "read", "write", "logging"]}
+jni = "0.21.1"
+maybe-async = { version = "0.2.7", features = ["is_sync"] }
+anyhow = "1.0.80"
+
+[features]
+sync = ["xdvdfs/sync", "maybe-async/is_sync"]
+
+[lib]
+crate_type = ["cdylib"]
