@@ -1,36 +1,48 @@
 package ovh.astarivi.xboxlib;
 
-import org.tinylog.Logger;
-import ovh.astarivi.xboxlib.xdvdfs.XDVDFS;
-import ovh.astarivi.xboxlib.xdvdfs.base.XDVDFSException;
-import ovh.astarivi.xboxlib.xdvdfs.base.XDVDFSListener;
+import com.formdev.flatlaf.FlatDarkLaf;
+import ovh.astarivi.xboxlib.gui.MainForm;
 
+import javax.swing.*;
 import java.io.IOException;
-import java.nio.file.Path;
 
 
 public class Main {
-    public static void main(String[] args) throws IOException {
-        XDVDFS xdvdfs = new XDVDFS(
-                Path.of("D:\\xbox\\test\\redump.iso"),
-                Path.of("D:\\xbox\\test\\output.iso")
-        );
-        xdvdfs.setListener(new XDVDFSListener() {
-            @Override
-            public void onError(XDVDFSException exception) {
-                Logger.info(exception);
-            }
+    public static void startGUI() {
+        FlatDarkLaf.setup();
 
-            @Override
-            public void onProgress(String status) {
-                Logger.info(status);
-            }
-
-            @Override
-            public void onFinished() {
-                Logger.info("XDVDFS: Done");
-            }
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("OGXRepacker");
+            MainForm mainForm = new MainForm();
+            frame.setContentPane(mainForm.rootPanel);
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.pack();
+            frame.setVisible(true);
         });
-        xdvdfs.start();
+    }
+
+    public static void main(String[] args) throws IOException {
+//        XDVDFS xdvdfs = new XDVDFS(
+//                Path.of("D:\\xbox\\test\\redump.iso"),
+//                Path.of("D:\\xbox\\test\\output.iso")
+//        );
+//        xdvdfs.setListener(new XDVDFSListener() {
+//            @Override
+//            public void onError(XDVDFSException exception) {
+//                Logger.info(exception);
+//            }
+//
+//            @Override
+//            public void onProgress(String status) {
+//                Logger.info(status);
+//            }
+//
+//            @Override
+//            public void onFinished() {
+//                Logger.info("XDVDFS: Done");
+//            }
+//        });
+//        xdvdfs.start();
+        startGUI();
     }
 }

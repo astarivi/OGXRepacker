@@ -2,23 +2,57 @@ plugins {
     id 'java'
 }
 
+apply plugin: 'application'
+apply plugin: 'idea'
+
+mainClassName = 'ovh.astarivi.xboxlib.Main'
 group = 'ovh.astarivi.xboxlib'
 version = '1.0'
 
 repositories {
     mavenCentral()
+    maven { url "https://www.jetbrains.com/intellij-repository/releases" }
+    // This repo has changed like 3 times in past. If anything breaks, this thing could be to blame.
+    maven { url "https://cache-redirector.jetbrains.com/intellij-dependencies" }
 }
 
-dependencies {
-    // Logger
-    implementation 'org.tinylog:tinylog-api:2.6.2'
-    runtimeOnly 'org.tinylog:tinylog-impl:2.6.2'
-    runtimeOnly 'org.tinylog:slf4j-tinylog:2.6.2'
+configurations {
+    antTask
+}
 
-    implementation 'org.jetbrains:annotations:24.0.1'
+
+dependencies {
+    // GUI
+    implementation 'com.formdev:flatlaf:3.4'
+    implementation 'com.jgoodies:jgoodies-forms:1.9.0' // Yes I know this has a CVE, but it's a small one
+    // Stuff from IntelliJ to make the GUI Designer work with Gradle
+    implementation 'com.jetbrains.intellij.java:java-gui-forms-rt:233.14475.56'
+    antTask 'com.jetbrains.intellij.java:java-compiler-ant-tasks:233.14475.56'
+
+    // Logger
+    implementation 'org.tinylog:tinylog-api:2.7.0'
+    runtimeOnly 'org.tinylog:tinylog-impl:2.7.0'
+    runtimeOnly 'org.tinylog:slf4j-tinylog:2.7.0'
+
+    implementation 'org.jetbrains:annotations:24.1.0'
 
     // Testing
-    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
+}
+
+
+// Wonderful little spaghetti to integrate IntelliJ Swing GUI designer into Gradle
+task compileJava(type: JavaCompile, overwrite: true, dependsOn: configurations.runtimeClasspath.getTaskDependencyFromProjectDependency(true, 'jar')) {
+    doLast {
+        project.sourceSets.main.output.classesDirs.each { project.mkdir(it) }
+        ant.taskdef name: 'javac2', classname: 'com.intellij.ant.Javac2', classpath: configurations.antTask.asPath
+        ant.javac2 srcdir: project.sourceSets.main.java.srcDirs.join(':'),
+                classpath: project.sourceSets.main.compileClasspath.asPath,
+                destdir: project.sourceSets.main.output.classesDirs[0],
+                source: sourceCompatibility,
+                target: targetCompatibility,
+                includeAntRuntime: false
+    }
 }
 
 test {
