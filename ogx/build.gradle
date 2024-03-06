@@ -24,6 +24,8 @@ configurations {
 dependencies {
     // GUI
     implementation 'com.formdev:flatlaf:3.4'
+    implementation 'com.formdev:flatlaf-intellij-themes:3.4'
+
     implementation 'com.jgoodies:jgoodies-forms:1.9.0' // Yes I know this has a CVE, but it's a small one
     // Stuff from IntelliJ to make the GUI Designer work with Gradle
     implementation 'com.jetbrains.intellij.java:java-gui-forms-rt:233.14475.56'

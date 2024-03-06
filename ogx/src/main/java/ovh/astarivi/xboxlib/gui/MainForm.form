@@ -3,16 +3,13 @@
   <grid id="27dc6" binding="rootPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="800" height="440"/>
+      <xy x="20" y="20" width="570" height="273"/>
     </constraints>
     <properties/>
     <border type="none"/>
     <children>
-      <grid id="f6170" binding="childPanel" layout-manager="FormLayout">
-        <rowspec value="center:d:grow"/>
-        <rowspec value="top:4dlu:noGrow"/>
-        <rowspec value="center:max(d;4px):noGrow"/>
-        <colspec value="fill:d:grow"/>
+      <grid id="f6170" binding="childPanel" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="5" left="5" bottom="10" right="5"/>
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -37,7 +34,6 @@
             <colspec value="fill:386px:noGrow"/>
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-              <forms defaultalign-horz="false"/>
             </constraints>
             <properties/>
             <border type="none"/>
@@ -152,7 +148,7 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="13420" class="javax.swing.JComboBox" binding="comboBox1" default-binding="true">
+                  <component id="13420" class="javax.swing.JComboBox" binding="packCombo">
                     <constraints>
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                       <forms/>
@@ -187,7 +183,7 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="a9b3b" class="javax.swing.JComboBox" default-binding="true">
+                  <component id="a9b3b" class="javax.swing.JComboBox" binding="attacherCombo">
                     <constraints>
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                       <forms/>
@@ -222,7 +218,7 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="d190c" class="javax.swing.JComboBox" default-binding="true">
+                  <component id="d190c" class="javax.swing.JComboBox" binding="namingCombo">
                     <constraints>
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                       <forms/>
@@ -257,7 +253,7 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="5817" class="javax.swing.JComboBox" default-binding="true">
+                  <component id="5817" class="javax.swing.JComboBox" binding="splitCombo">
                     <constraints>
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                       <forms/>
@@ -282,8 +278,7 @@
             <colspec value="right:100px:noGrow"/>
             <colspec value="fill:4dlu:noGrow"/>
             <constraints>
-              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-              <forms/>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties/>
             <border type="none"/>

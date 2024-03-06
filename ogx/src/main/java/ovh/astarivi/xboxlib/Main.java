@@ -1,6 +1,6 @@
 package ovh.astarivi.xboxlib;
 
-import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatMoonlightIJTheme;
 import ovh.astarivi.xboxlib.gui.MainForm;
 
 import javax.swing.*;
@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class Main {
     public static void startGUI() {
-        FlatDarkLaf.setup();
+        FlatMoonlightIJTheme.setup();
 
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("OGXRepacker");
@@ -17,6 +17,9 @@ public class Main {
             frame.setContentPane(mainForm.rootPanel);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.pack();
+            frame.setResizable(false);
+            // Center the window
+            frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         });
     }
