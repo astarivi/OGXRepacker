@@ -1,7 +1,6 @@
 use maybe_async::maybe_async;
 use std::{fs::File, io::BufReader, path::Path};
-use xdvdfs::blockdev::{OffsetWrapper};
-
+use xdvdfs::blockdev::OffsetWrapper;
 
 #[maybe_async]
 pub async fn open_image_raw(

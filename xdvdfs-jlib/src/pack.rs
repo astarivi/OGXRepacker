@@ -1,9 +1,11 @@
 use std::path::PathBuf;
 use xdvdfs::write::{self, img::ProgressInfo};
 
-
-pub fn pack_img(source_path: PathBuf, target_path: PathBuf, progress_callback: impl Fn(ProgressInfo)) -> Result<(), anyhow::Error>{
-
+pub fn pack_img(
+    source_path: PathBuf,
+    target_path: PathBuf,
+    progress_callback: impl Fn(ProgressInfo),
+) -> Result<(), anyhow::Error> {
     let target_image = std::fs::File::options()
         .write(true)
         .truncate(true)
@@ -19,7 +21,7 @@ pub fn pack_img(source_path: PathBuf, target_path: PathBuf, progress_callback: i
             &source_path,
             &mut write::fs::StdFilesystem,
             &mut target_image,
-            progress_callback
+            progress_callback,
         )?;
     } else if meta.is_file() {
         let source = crate::img::open_image_raw(&source_path)?;
@@ -31,7 +33,7 @@ pub fn pack_img(source_path: PathBuf, target_path: PathBuf, progress_callback: i
             &PathBuf::from("/"),
             &mut fs,
             &mut target_image,
-            progress_callback
+            progress_callback,
         )?;
     } else {
         return Err(anyhow::anyhow!("Symlink image sources are not supported"));
