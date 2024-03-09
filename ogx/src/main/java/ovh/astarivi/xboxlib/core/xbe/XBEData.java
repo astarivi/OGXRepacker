@@ -115,6 +115,10 @@ public class XBEData {
         public byte[] dwAlternateTitleId; // 0x005C - alternate title ids
         public int dwAllowedMedia; // 0x009C - allowed media types
         public int dwGameRegion; // 0x00A0 - game region
+        public boolean regionUSA;
+        public boolean regionJapan;
+        public boolean regionEurope;
+        public boolean regionManufacturing;
         public int dwGameRatings; // 0x00A4 - game ratings
         public int dwDiskNumber; // 0x00A8 - disk number
         public int dwVersion; // 0x00AC - version
@@ -137,6 +141,10 @@ public class XBEData {
             buffer.get(dwAlternateTitleId);
             dwAllowedMedia = buffer.getInt();
             dwGameRegion = buffer.getInt();
+            regionUSA = (dwGameRegion & 0x00000001) != 0;
+            regionJapan = (dwGameRegion & 0x00000002) != 0;
+            regionEurope = (dwGameRegion & 0x00000004) != 0;
+            regionManufacturing = (dwGameRegion & 0x80000000) != 0;
             dwGameRatings = buffer.getInt();
             dwDiskNumber = buffer.getInt();
             dwVersion = buffer.getInt();
@@ -150,6 +158,33 @@ public class XBEData {
             }
 
             cleanTitleName = new String(wszTitleName, java.nio.charset.StandardCharsets.UTF_16LE).trim();
+        }
+
+        public String getRegionCode() {
+            // World
+            if(regionUSA && regionJapan && regionEurope) {
+                return "W";
+            }
+
+            if(!regionUSA && !regionJapan && !regionEurope) {
+                return "Unk";
+            }
+
+            String code = "";
+
+            if(regionUSA) {
+                code += "U";
+            }
+
+            if(regionJapan) {
+                code += "J";
+            }
+
+            if(regionEurope) {
+                code += "E";
+            }
+
+            return code;
         }
     }
 

@@ -8,7 +8,7 @@ import java.util.Properties;
 
 
 public class AppProperties extends Properties {
-    private static final String subFolder = "config/";
+    private static final String subFolder = "ogxrepacker/config/";
     private final String filename;
     private final File localFile;
 

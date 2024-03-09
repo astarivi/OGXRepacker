@@ -68,7 +68,7 @@ public class MainForm {
 
         splitCombo.setModel(new DefaultComboBoxModel<>(new String[]{
                 "Split in half",
-                "Split at FATX limit",
+//                "Split at FATX limit",
                 "Do not split"
         }));
 

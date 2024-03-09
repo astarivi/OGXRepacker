@@ -26,11 +26,16 @@ dependencies {
     // GUI
     implementation 'com.formdev:flatlaf:3.4'
     implementation 'com.formdev:flatlaf-intellij-themes:3.4'
-
     implementation 'com.jgoodies:jgoodies-forms:1.9.0' // Yes I know this has a CVE, but it's a small one
+
     // Stuff from IntelliJ to make the GUI Designer work with Gradle
     implementation 'com.jetbrains.intellij.java:java-gui-forms-rt:233.14475.56'
     antTask 'com.jetbrains.intellij.java:java-compiler-ant-tasks:233.14475.56'
+
+    // Jackson
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.1'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.16.1'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.16.1'
 
     // Logger
     implementation 'org.tinylog:tinylog-api:2.7.0'

@@ -1,7 +1,7 @@
 .gradle
 build/
 .idea/
-config/
+ogxrepacker/
 /xdvdfs-jlib/target/
 /xdvdfs-jlib/Cargo.lock
 !gradle/wrapper/gradle-wrapper.jar
