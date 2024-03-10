@@ -1,8 +1,6 @@
 use jni::objects::{JObject, JString, JValue};
 use jni::sys::jint;
 use jni::JNIEnv;
-use std::cell::RefMut;
-use std::rc::Rc;
 
 pub enum CallbackCodes {
     ExtractingFiles = 0,
@@ -10,12 +8,7 @@ pub enum CallbackCodes {
     Error = 2,
 }
 
-pub fn callback(
-    mut env: RefMut<JNIEnv>,
-    object: Rc<JObject>,
-    message: String,
-    status: CallbackCodes,
-) {
+pub fn callback(env: &mut JNIEnv, object: &JObject, message: String, status: CallbackCodes) {
     let output: JString = env
         .new_string(message)
         .expect("Couldn't create callback message!");

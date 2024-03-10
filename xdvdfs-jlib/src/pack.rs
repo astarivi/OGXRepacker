@@ -1,7 +1,9 @@
+use maybe_async::maybe_async;
 use std::path::PathBuf;
 use xdvdfs::write::{self, img::ProgressInfo};
 
-pub fn pack_img(
+#[maybe_async]
+pub async fn pack_img(
     source_path: PathBuf,
     target_path: PathBuf,
     progress_callback: impl Fn(ProgressInfo),
@@ -22,11 +24,13 @@ pub fn pack_img(
             &mut write::fs::StdFilesystem,
             &mut target_image,
             progress_callback,
-        )?;
+        )
+        .await?;
     } else if meta.is_file() {
-        let source = crate::img::open_image_raw(&source_path)?;
+        let source = crate::img::open_image_raw(&source_path).await?;
 
         let mut fs = write::fs::XDVDFSFilesystem::new(source)
+            .await
             .ok_or(anyhow::anyhow!("Failed to create XDVDFS filesystem"))?;
 
         write::img::create_xdvdfs_image(
@@ -34,7 +38,8 @@ pub fn pack_img(
             &mut fs,
             &mut target_image,
             progress_callback,
-        )?;
+        )
+        .await?;
     } else {
         return Err(anyhow::anyhow!("Symlink image sources are not supported"));
     }

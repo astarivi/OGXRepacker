@@ -42,7 +42,11 @@
                   </grid>
                   <forms defaultalign-horz="false" defaultalign-vert="false"/>
                 </constraints>
-                <properties/>
+                <properties>
+                  <editable value="false"/>
+                  <enabled value="true"/>
+                  <text value=""/>
+                </properties>
               </component>
               <component id="3112b" class="javax.swing.JProgressBar" binding="totalProgress">
                 <constraints>

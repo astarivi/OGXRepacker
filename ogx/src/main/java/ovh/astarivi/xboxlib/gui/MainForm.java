@@ -1,13 +1,20 @@
 package ovh.astarivi.xboxlib.gui;
 
+import org.tinylog.Logger;
 import ovh.astarivi.xboxlib.core.storage.AppProperties;
 import ovh.astarivi.xboxlib.core.storage.PersistenceRepository;
+import ovh.astarivi.xboxlib.gui.utils.GuiConfig;
 import ovh.astarivi.xboxlib.gui.utils.JComboListener;
 
 import javax.swing.*;
+import java.awt.event.*;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 
 public class MainForm {
+    private JFrame frame;
     private JTextField inputField;
     private JButton inputBtn;
     private JTextField outputField;
@@ -24,6 +31,15 @@ public class MainForm {
     // Initialize this, and load settings
     public MainForm() {
         loadValues();
+
+        frame = new JFrame("OGXRepacker");
+        frame.setContentPane(rootPanel);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.pack();
+        frame.setResizable(false);
+        // Center the window
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
     }
 
     private void loadValues() {
@@ -31,7 +47,6 @@ public class MainForm {
 
         namingCombo.setModel(new DefaultComboBoxModel<>(new String[]{
                 "OGXRepacker",
-                "Repackinator",
                 "Keep filename"
         }));
 
@@ -57,14 +72,14 @@ public class MainForm {
 
         packCombo.setModel(new DefaultComboBoxModel<>(new String[]{
                 "XDVDFS (XISO)",
-                "CISO (CSO)"
+//                "CISO (CSO)"
         }));
 
         packCombo.setSelectedIndex(
                 appProperties.getIntProperty("pack", 0)
         );
 
-        packCombo.addItemListener(new JComboListener("pack"));
+        packCombo.addItemListener(this::packComboChanged);
 
         splitCombo.setModel(new DefaultComboBoxModel<>(new String[]{
                 "Split in half",
@@ -82,9 +97,35 @@ public class MainForm {
                 appProperties.getProperty("input", "")
         );
 
+        inputField.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                appProperties.setProperty("input", inputField.getText());
+                appProperties.save();
+            }
+        });
+
         outputField.setText(
                 appProperties.getProperty("output", "")
         );
+
+        outputField.addFocusListener(new FocusListener() {
+            @Override
+            public void focusGained(FocusEvent e) {
+
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                appProperties.setProperty("output", outputField.getText());
+                appProperties.save();
+            }
+        });
 
         inputBtn.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
@@ -117,9 +158,103 @@ public class MainForm {
             outputField.setText(filename);
             saveSettings();
         });
+
+        processButton.addActionListener(this::startProcess);
     }
 
     private void saveSettings(){
         PersistenceRepository.getInstance().getAppProperties().save();
+    }
+
+    private void packComboChanged(ItemEvent e) {
+        new JComboListener("pack").itemStateChanged(e);
+
+//        int index = packCombo.getSelectedIndex();
+//
+//        // CISO does the splitting by itself
+//        if (index == 1){
+//            splitCombo.setEnabled(false);
+//        }
+    }
+
+    // Lots of user checks
+    private void startProcess(ActionEvent e) {
+        String inputFieldText = inputField.getText();
+        String outputFieldText = outputField.getText();
+
+        if (inputFieldText == null || inputFieldText.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    rootPanel,
+                    "Input path field cannot be empty.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        if (outputFieldText == null || outputFieldText.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    rootPanel,
+                    "Output path field cannot be empty.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        Path inputPath = Path.of(inputFieldText);
+
+        if (!Files.isDirectory(inputPath)) {
+            JOptionPane.showMessageDialog(
+                    rootPanel,
+                    "Input path does not exist, or is not a readable directory.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        Path outputPath = Path.of(outputFieldText);
+
+        if (!Files.isDirectory(outputPath)) {
+            try {
+                Files.createDirectories(outputPath);
+            } catch (IOException ex) {
+                Logger.error("Failed to create folder {}", outputPath.toString());
+                Logger.error(ex);
+                JOptionPane.showMessageDialog(
+                        rootPanel,
+                        "Output folder does not exist, and we could not create it.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+        }
+
+        if (Files.isRegularFile(outputPath)) {
+            JOptionPane.showMessageDialog(
+                    rootPanel,
+                    "Output path should be a folder, not a file.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        GuiConfig guiConfig = new GuiConfig(
+                inputPath,
+                outputPath,
+                namingCombo.getSelectedIndex(),
+                attacherCombo.getSelectedIndex(),
+                packCombo.getSelectedIndex(),
+                splitCombo.getSelectedIndex()
+        );
+
+        SwingUtilities.invokeLater(() -> {
+            ProgressForm pForm = new ProgressForm(frame, guiConfig);
+            pForm.start();
+            GuiReference.progressForm.set(pForm);
+        });
     }
 }

@@ -12,15 +12,7 @@ public class Main {
         FlatMoonlightIJTheme.setup();
 
         SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("OGXRepacker");
             MainForm mainForm = new MainForm();
-            frame.setContentPane(mainForm.rootPanel);
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.pack();
-            frame.setResizable(false);
-            // Center the window
-            frame.setLocationRelativeTo(null);
-            frame.setVisible(true);
         });
     }
 
