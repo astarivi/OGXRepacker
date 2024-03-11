@@ -9,6 +9,7 @@ import ovh.astarivi.jxdvdfs.base.XDVDFSException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 public class XDVDFSTest {
 
@@ -35,9 +36,29 @@ public class XDVDFSTest {
                 Path.of("D:\\xbox\\test\\redump.iso"),
                 Path.of("D:\\xbox\\test\\output.iso")
         );
-//
-//        assertEquals("Chainsaw Man", anime.attributes.canonicalTitle);
-//        assertEquals("Chainsaw Man", anime.attributes.titles.en);
-//        assertEquals("2022-10-11", anime.attributes.startDate);
+    }
+
+    @Test
+    @DisplayName("XDVDFS stat")
+    void testStat() throws IOException, XDVDFSException {
+        XDVDFS xdvdfs = new XDVDFS();
+
+        Logger.info(Arrays.toString(
+                xdvdfs.stat(
+                        Path.of("D:\\xbox\\test\\redump.iso")
+                )
+        ));
+    }
+
+    @Test
+    @DisplayName("XDVDFS file unpack")
+    void testFileUnpack() throws IOException, XDVDFSException {
+        XDVDFS xdvdfs = new XDVDFS();
+
+        xdvdfs.unpackFile(
+                Path.of("D:\\xbox\\test\\redump.iso"),
+                Path.of("D:\\xbox\\test\\default.xbe"),
+                "/default.xbe"
+        );
     }
 }
