@@ -16,16 +16,27 @@ import java.nio.file.Path;
 @Setter
 @SuppressWarnings("unused")
 public class XDVDFS {
-    static {
-        System.loadLibrary("xdvdfs_jlib");
-    }
-
+    private static boolean libraryLoaded = false;
     private XDVDFSListener packListener = null;
     private XDVDFSListener unpackListener = null;
 
     private native void pack(String source, String destination) throws XDVDFSException;
     private native void unpack(String source, String destination) throws XDVDFSException;
     private native int[] stat(String source) throws XDVDFSException;
+
+    public XDVDFS() {
+        if (!libraryLoaded) {
+            System.loadLibrary("xdvdfs_jlib");
+            libraryLoaded = true;
+        }
+    }
+
+    public XDVDFS(String loadFrom) {
+        if (!libraryLoaded) {
+            System.load(loadFrom);
+            libraryLoaded = true;
+        }
+    }
 
     private void pack_callback(String message) {
         Logger.debug("Received event from XDVDFS pack: {}", message);
@@ -47,8 +58,8 @@ public class XDVDFS {
      * @param output The path to save the resulting image to.
      */
     public void pack(@NotNull Path input, @NotNull Path output) throws IOException, XDVDFSException {
-        Path realInput = input.toRealPath();
-        Path realOutput = output.toRealPath();
+        Path realInput = input.toAbsolutePath();
+        Path realOutput = output.toAbsolutePath();
 
         if (!Files.isRegularFile(realInput)) {
             throw new IOException("Input image does not exist, or is not readable");

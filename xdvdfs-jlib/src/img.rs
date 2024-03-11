@@ -1,6 +1,6 @@
+use ciso::read::CSOReader;
 use maybe_async::maybe_async;
 use std::{fs::File, io::BufReader, path::Path};
-use ciso::read::CSOReader;
 use xdvdfs::blockdev::{BlockDeviceRead, OffsetWrapper};
 
 pub struct CSOBlockDevice<R: ciso::read::Read<std::io::Error>> {
@@ -9,8 +9,8 @@ pub struct CSOBlockDevice<R: ciso::read::Read<std::io::Error>> {
 
 #[maybe_async]
 impl<R> BlockDeviceRead<std::io::Error> for CSOBlockDevice<R>
-    where
-        R: ciso::read::Read<std::io::Error>,
+where
+    R: ciso::read::Read<std::io::Error>,
 {
     async fn read(&mut self, offset: u64, buffer: &mut [u8]) -> Result<(), std::io::Error> {
         self.inner

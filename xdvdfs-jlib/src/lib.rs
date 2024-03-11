@@ -4,20 +4,19 @@ mod pack;
 mod read;
 
 use jni::JNIEnv;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use jni::objects::{JObject, JString};
 use jni::strings::JavaStr;
 use xdvdfs::write::img::ProgressInfo;
 
+use jni::sys::jintArray;
 use std::sync::{mpsc, Arc};
 use std::thread;
-use anyhow::Error;
-use jni::sys::{jint, jintArray};
 use tokio::runtime::Builder;
 
 #[no_mangle]
-pub extern "system" fn Java_XDVDFS_pack<'local>(
+pub extern "system" fn Java_ovh_astarivi_jxdvdfs_XDVDFS_pack<'local>(
     mut env: JNIEnv<'local>,
     object: JObject<'local>,
     source: JString<'local>,
@@ -27,11 +26,9 @@ pub extern "system" fn Java_XDVDFS_pack<'local>(
         match env.get_string(&source) {
             Ok(java_string) => java_string,
             Err(err) => {
-                java::callback(
+                java::throw_exception(
                     &mut env,
-                    &object,
                     format!("Error while decoding input path: {}", err),
-                    java::CallbackCodes::Error,
                 );
                 return;
             }
@@ -42,11 +39,9 @@ pub extern "system" fn Java_XDVDFS_pack<'local>(
         match env.get_string(&destination) {
             Ok(java_string) => java_string,
             Err(err) => {
-                java::callback(
+                java::throw_exception(
                     &mut env,
-                    &object,
                     format!("Error while decoding output path: {}", err),
-                    java::CallbackCodes::Error,
                 );
                 return;
             }
@@ -56,7 +51,7 @@ pub extern "system" fn Java_XDVDFS_pack<'local>(
     let (sender, receiver) = mpsc::channel();
 
     let result_handle = thread::spawn(|| {
-        // We're using tokio for the dumbest reason ever
+        // We are using tokio for the dumbest reason ever
         let rv = Builder::new_multi_thread()
             .worker_threads(1)
             .build()
@@ -89,21 +84,8 @@ pub extern "system" fn Java_XDVDFS_pack<'local>(
         result
     });
 
-    loop {
-        match receiver.recv() {
-            Ok(data) => {
-                java::callback(
-                    &mut env,
-                    &object,
-                    data,
-                    java::CallbackCodes::Working,
-                );
-            }
-            Err(_) => {
-                println!("Sender has been closed");
-                break;
-            }
-        }
+    while let Ok(data) = receiver.recv() {
+        java::callback(&mut env, &object, data);
     }
 
     let result = result_handle.join();
@@ -111,65 +93,56 @@ pub extern "system" fn Java_XDVDFS_pack<'local>(
     let return_value = match result {
         Ok(val) => val,
         Err(err) => {
-            println!("Error occurred: {:?}", err);
+            java::throw_exception(&mut env, format!("Threading error: {:?}", err));
             return;
         }
     };
 
     if let Err(err) = return_value {
-        java::callback(
-            &mut env,
-            &object,
-            format!("An error has occurred: {}", err),
-            java::CallbackCodes::Error,
-        );
-        std::process::exit(1);
+        java::throw_exception(&mut env, format!("Packing error: {}", err));
     }
-
-    java::callback(
-        &mut env,
-        &object,
-        String::from("All done"),
-        java::CallbackCodes::Finished,
-    );
 }
 
-
 #[no_mangle]
-pub extern "system" fn Java_XDVDFS_stat<'local>(
+pub extern "system" fn Java_ovh_astarivi_jxdvdfs_XDVDFS_stat<'local>(
     mut env: JNIEnv<'local>,
-    object: JObject<'local>,
-    source: JString<'local>
+    _object: JObject<'local>,
+    source: JString<'local>,
 ) -> jintArray {
-    let data: Vec<jint> = vec![-1, -1];
-    let failure_array = env.new_int_array(data.len() as i32).expect("Failed to create Java array");
-    env.set_int_array_region(failure_array, 0, &data).expect("Failed to set array region");
-
     let source_path: PathBuf = PathBuf::from(<JavaStr<'_, '_, '_> as Into<String>>::into(
         match env.get_string(&source) {
             Ok(java_string) => java_string,
             Err(err) => {
-                java::callback(
+                java::throw_exception(
                     &mut env,
-                    &object,
                     format!("Error while decoding input path: {}", err),
-                    java::CallbackCodes::Error,
                 );
-                return failure_array.as_raw();
+                std::process::exit(1);
             }
         },
     ));
 
-    let result = read::stat(&*source_path);
+    let result = read::stat(&source_path);
 
     return match result {
         Ok(val) => {
-            let result_arr = env.new_int_array(val.len() as i32).expect("Failed to create return array");
-            env.set_int_array_region(result_arr, 0, &val).expect("Failed to set return array region.");
-            result_arr.as_raw()
+            let result_arr = env.new_int_array(2).expect("Failed to create return array");
+            env.set_int_array_region(&result_arr, 0, &val)
+                .expect("Failed to set return array region.");
+            result_arr.into_raw()
         }
-        Err(_) => {
-            failure_array.as_raw()
+        Err(err) => {
+            java::throw_exception(&mut env, format!("Image read error: {}", err));
+            std::process::exit(1);
         }
-    }
+    };
+}
+
+#[no_mangle]
+pub extern "system" fn Java_ovh_astarivi_jxdvdfs_XDVDFS_unpack<'local>(
+    mut env: JNIEnv<'local>,
+    object: JObject<'local>,
+    source: JString<'local>,
+    destination: JString<'local>,
+) {
 }

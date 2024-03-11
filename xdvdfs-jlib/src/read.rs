@@ -1,11 +1,9 @@
-use std::path::Path;
-use jni::sys::jint;
+use crate::img::open_image;
 use maybe_async::maybe_async;
-use crate::img::{open_image};
-
+use std::path::Path;
 
 #[maybe_async]
-pub async fn stat(img_path: &Path) -> Result<Vec<jint>, anyhow::Error> {
+pub async fn stat(img_path: &Path) -> Result<[i32; 2], anyhow::Error> {
     let mut img = open_image(img_path).await?;
     let volume = xdvdfs::read::read_volume(&mut img).await?;
 
@@ -21,5 +19,5 @@ pub async fn stat(img_path: &Path) -> Result<Vec<jint>, anyhow::Error> {
         }
     }
 
-    Ok(vec![file_count, total_size])
+    Ok([file_count, total_size])
 }
