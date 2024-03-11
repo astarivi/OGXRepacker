@@ -1,4 +1,4 @@
-package ovh.astarivi.xboxlib.xdvdfs.base;
+package ovh.astarivi.jxdvdfs.base;
 
 import org.tinylog.Logger;
 

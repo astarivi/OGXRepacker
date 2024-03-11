@@ -1,10 +1,10 @@
 plugins {
     id 'java'
     id 'io.freefair.lombok' version '8.6'
+    id 'idea'
 }
 
 apply plugin: 'application'
-apply plugin: 'idea'
 
 mainClassName = 'ovh.astarivi.xboxlib.Main'
 group = 'ovh.astarivi.xboxlib'
@@ -23,6 +23,8 @@ configurations {
 
 
 dependencies {
+    implementation project(':jxdvdfs')
+
     // GUI
     implementation 'com.formdev:flatlaf:3.4'
     implementation 'com.formdev:flatlaf-intellij-themes:3.4'

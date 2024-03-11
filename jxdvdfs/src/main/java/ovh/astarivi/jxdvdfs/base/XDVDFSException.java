@@ -1,4 +1,5 @@
-package ovh.astarivi.xboxlib.xdvdfs.base;
+package ovh.astarivi.jxdvdfs.base;
+
 
 public class XDVDFSException extends Exception{
     public XDVDFSException() {

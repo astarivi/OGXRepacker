@@ -3,7 +3,7 @@ use jni::sys::jint;
 use jni::JNIEnv;
 
 pub enum CallbackCodes {
-    ExtractingFiles = 0,
+    Working = 0,
     Finished = 1,
     Error = 2,
 }
@@ -23,4 +23,8 @@ pub fn callback(env: &mut JNIEnv, object: &JObject, message: String, status: Cal
         ],
     )
     .expect("Failed to call callback Java method");
+}
+
+pub fn throw_exception() {
+
 }

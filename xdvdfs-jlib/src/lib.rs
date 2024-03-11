@@ -1,9 +1,10 @@
 mod img;
 mod java;
 mod pack;
+mod read;
 
 use jni::JNIEnv;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use jni::objects::{JObject, JString};
 use jni::strings::JavaStr;
@@ -11,10 +12,12 @@ use xdvdfs::write::img::ProgressInfo;
 
 use std::sync::{mpsc, Arc};
 use std::thread;
+use anyhow::Error;
+use jni::sys::{jint, jintArray};
 use tokio::runtime::Builder;
 
 #[no_mangle]
-pub extern "system" fn Java_XDVDFSImpl_pack<'local>(
+pub extern "system" fn Java_XDVDFS_pack<'local>(
     mut env: JNIEnv<'local>,
     object: JObject<'local>,
     source: JString<'local>,
@@ -93,7 +96,7 @@ pub extern "system" fn Java_XDVDFSImpl_pack<'local>(
                     &mut env,
                     &object,
                     data,
-                    java::CallbackCodes::ExtractingFiles,
+                    java::CallbackCodes::Working,
                 );
             }
             Err(_) => {
@@ -129,4 +132,44 @@ pub extern "system" fn Java_XDVDFSImpl_pack<'local>(
         String::from("All done"),
         java::CallbackCodes::Finished,
     );
+}
+
+
+#[no_mangle]
+pub extern "system" fn Java_XDVDFS_stat<'local>(
+    mut env: JNIEnv<'local>,
+    object: JObject<'local>,
+    source: JString<'local>
+) -> jintArray {
+    let data: Vec<jint> = vec![-1, -1];
+    let failure_array = env.new_int_array(data.len() as i32).expect("Failed to create Java array");
+    env.set_int_array_region(failure_array, 0, &data).expect("Failed to set array region");
+
+    let source_path: PathBuf = PathBuf::from(<JavaStr<'_, '_, '_> as Into<String>>::into(
+        match env.get_string(&source) {
+            Ok(java_string) => java_string,
+            Err(err) => {
+                java::callback(
+                    &mut env,
+                    &object,
+                    format!("Error while decoding input path: {}", err),
+                    java::CallbackCodes::Error,
+                );
+                return failure_array.as_raw();
+            }
+        },
+    ));
+
+    let result = read::stat(&*source_path);
+
+    return match result {
+        Ok(val) => {
+            let result_arr = env.new_int_array(val.len() as i32).expect("Failed to create return array");
+            env.set_int_array_region(result_arr, 0, &val).expect("Failed to set return array region.");
+            result_arr.as_raw()
+        }
+        Err(_) => {
+            failure_array.as_raw()
+        }
+    }
 }
