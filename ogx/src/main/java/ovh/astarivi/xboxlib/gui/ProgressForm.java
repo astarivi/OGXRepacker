@@ -1,22 +1,18 @@
 package ovh.astarivi.xboxlib.gui;
 
 import lombok.Getter;
-import org.tinylog.Logger;
+import ovh.astarivi.xboxlib.core.Pack;
 import ovh.astarivi.xboxlib.core.Threading;
+import ovh.astarivi.xboxlib.core.utils.SmartScroller;
 import ovh.astarivi.xboxlib.core.utils.Utils;
 import ovh.astarivi.xboxlib.gui.utils.GuiConfig;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.concurrent.Future;
-import java.util.stream.Stream;
+
 
 @Getter
 public class ProgressForm {
@@ -28,6 +24,7 @@ public class ProgressForm {
     private JProgressBar totalProgress;
     private JProgressBar currentProgress;
     private JButton cancelButton;
+    private JScrollPane logsScrollPane;
 
     public ProgressForm(JFrame parentFrame, GuiConfig config) {
         this.config = config;
@@ -39,6 +36,7 @@ public class ProgressForm {
         dialog.setResizable(false);
         // Center the window
         dialog.setLocationRelativeTo(null);
+        new SmartScroller(logsScrollPane);
 
         logsText.setEditable(false);
 
@@ -49,6 +47,11 @@ public class ProgressForm {
                     task.cancel(true);
                 }
                 GuiReference.progressForm.set(null);
+
+                try {
+                    Utils.cleanTemp();
+                } catch (Exception ignored) {
+                }
             }
         });
 
@@ -68,8 +71,6 @@ public class ProgressForm {
 
     public void addEvent(String event) {
         logsText.append(event + "\n");
-        logsText.setCaretPosition(logsText.getText().length());
-
     }
 
     public void processError(String error) {
@@ -79,7 +80,6 @@ public class ProgressForm {
                 "Fatal error",
                 JOptionPane.ERROR_MESSAGE
         );
-
         finish();
     }
 
@@ -96,57 +96,9 @@ public class ProgressForm {
     public void start() {
         addEvent("Initializing OGXRepacker");
 
-        task = Threading.getInstance().getProcessExecutor().submit(() -> {
-            totalProgress.setIndeterminate(true);
-            currentProgress.setIndeterminate(true);
-            addEvent("Scanning input folder for files/folders to process");
-
-            ArrayList<Path> inputItems = new ArrayList<>();
-
-            try(Stream<Path> walkStream = Files.walk(config.inputField())) {
-                walkStream
-                        .filter(path -> {
-                            // ISO file
-                            if (Files.isRegularFile(path) && path.toString().toLowerCase().endsWith(".iso")) {
-                                return true;
-                            }
-
-                            // Dir
-                            return Files.isDirectory(path) && Utils.containsDefaultXbe(path);
-                        })
-                        .forEach(inputItems::add);
-            } catch (IOException e) {
-                Logger.error("Failed to walk path {}", config.inputField().toString());
-                Logger.error(e);
-                processError("Failed to walk input path");
-                return;
-            }
-
-            if (inputItems.isEmpty()) {
-                addEvent("No valid inputs found");
-                totalProgress.setIndeterminate(false);
-                currentProgress.setIndeterminate(false);
-                totalProgress.setValue(100);
-                finish();
-                return;
-            }
-
-            totalProgress.setIndeterminate(false);
-
-            int totalEntries = inputItems.size();
-            addEvent("Found %d valid entries to process".formatted(totalEntries));
-            int currentEntry = 0;
-
-            for (Path entry : inputItems) {
-                currentEntry++;
-
-                addEvent("Processing entry no. %d, %s".formatted(
-                        currentEntry, entry.getFileName().toString()
-                ));
-
-                addEvent("Reading file metadata");
-            }
-        });
+        task = Threading.getInstance().getProcessExecutor().submit(
+                new Pack(config, this)
+        );
 
         dialog.setVisible(true);
     }

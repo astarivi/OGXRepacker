@@ -26,7 +26,7 @@ public class XDVDFS {
     private native void pack(String source, String destination) throws XDVDFSException;
     private native void unpack(String source, String destination) throws XDVDFSException;
     private native void ufile(String source, String destination, String internalSearch) throws XDVDFSException;
-    private native int[] stat(String source) throws XDVDFSException;
+    private native long[] stat(String source) throws XDVDFSException;
 
     public XDVDFS() {
         if (!libraryLoaded) {
@@ -81,7 +81,7 @@ public class XDVDFS {
      * @return Returns the file count, and the total size in bytes,
      * in that order.
      */
-    public int[] stat(Path image) throws IOException, XDVDFSException {
+    public long[] stat(Path image) throws IOException, XDVDFSException {
         Path realPath = image.toRealPath();
 
         if (!realPath.toString().toLowerCase().endsWith(".iso")) {

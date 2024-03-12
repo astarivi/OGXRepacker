@@ -4,6 +4,7 @@ import org.tinylog.Logger;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.file.Path;
 
 
 public class XBE {
@@ -11,8 +12,8 @@ public class XBE {
     public final XBEData.XBECert cert;
     public byte[] rawCert = new byte[464];
 
-    public XBE(String xbePath) throws IOException {
-        try (RandomAccessFile bbis = new RandomAccessFile(xbePath, "r")) {
+    public XBE(Path xbePath) throws IOException {
+        try (RandomAccessFile bbis = new RandomAccessFile(xbePath.toFile(), "r")) {
             byte[] headerData = new byte[376];
             bbis.read(headerData);
             header = new XBEData.XBEHeader(headerData);

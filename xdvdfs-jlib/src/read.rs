@@ -7,18 +7,18 @@ use std::path::{Path, PathBuf, MAIN_SEPARATOR_STR};
 use xdvdfs::write::img::ProgressInfo;
 
 #[maybe_async]
-pub async fn stat(img_path: &Path) -> Result<[i32; 2], anyhow::Error> {
+pub async fn stat(img_path: &Path) -> Result<[i64; 2], anyhow::Error> {
     let mut img = open_image(img_path).await?;
     let volume = xdvdfs::read::read_volume(&mut img).await?;
 
     let tree = volume.root_table.file_tree(&mut img).await?;
 
-    let mut total_size: i32 = 0;
-    let mut file_count: i32 = 0;
+    let mut total_size: i64 = 0;
+    let mut file_count: i64 = 0;
 
     for (_dir, file) in &tree {
         if !file.node.dirent.is_directory() {
-            total_size += file.node.dirent.data.size() as i32;
+            total_size = total_size.wrapping_add(file.node.dirent.data.size() as i64);
             file_count += 1;
         }
     }

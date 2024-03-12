@@ -9,7 +9,7 @@ use std::path::PathBuf;
 use jni::objects::{JObject, JString};
 use xdvdfs::write::img::ProgressInfo;
 
-use jni::sys::jintArray;
+use jni::sys::jlongArray;
 use std::sync::{mpsc, Arc};
 use std::thread;
 use tokio::runtime::Builder;
@@ -149,15 +149,15 @@ pub extern "system" fn Java_ovh_astarivi_jxdvdfs_XDVDFS_stat<'local>(
     mut env: JNIEnv<'local>,
     _object: JObject<'local>,
     source: JString<'local>,
-) -> jintArray {
+) -> jlongArray {
     let source_path: PathBuf = PathBuf::from(java::decode_string(&mut env, &source));
 
     let result = read::stat(&source_path);
 
     return match result {
         Ok(val) => {
-            let result_arr = env.new_int_array(2).expect("Failed to create return array");
-            env.set_int_array_region(&result_arr, 0, &val)
+            let result_arr = env.new_long_array(2).expect("Failed to create return array");
+            env.set_long_array_region(&result_arr, 0, &val)
                 .expect("Failed to set return array region.");
             result_arr.into_raw()
         }
