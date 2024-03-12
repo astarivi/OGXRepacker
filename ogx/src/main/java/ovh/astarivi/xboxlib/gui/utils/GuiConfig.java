@@ -53,8 +53,7 @@ public record GuiConfig(
         CERBIOS(0),
         STELLAR(1),
         DRIVE_IMAGE_UTILS(2),
-        LEGACY(3),
-        NONE(4);
+        NONE(3);
         private final int value;
 
         Attacher(int val) {

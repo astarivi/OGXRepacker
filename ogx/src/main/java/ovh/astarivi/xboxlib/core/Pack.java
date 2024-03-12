@@ -3,6 +3,7 @@ package ovh.astarivi.xboxlib.core;
 import org.tinylog.Logger;
 import ovh.astarivi.jxdvdfs.XDVDFS;
 import ovh.astarivi.jxdvdfs.base.XDVDFSException;
+import ovh.astarivi.xboxlib.core.attacher.Attacher;
 import ovh.astarivi.xboxlib.core.naming.OGXName;
 import ovh.astarivi.xboxlib.core.split.SplitImage;
 import ovh.astarivi.xboxlib.core.storage.OGXArchive;
@@ -22,7 +23,6 @@ import java.util.stream.Stream;
 
 
 public class Pack implements Runnable {
-    private final Path temporaryPath = Path.of("ogxrepacker/temp").toAbsolutePath();
     private final GuiConfig config;
     private final ProgressForm progressForm;
 
@@ -42,16 +42,6 @@ public class Pack implements Runnable {
             progressForm.getCurrentProgress().setIndeterminate(true);
             progressForm.addEvent("Scanning input folder for files/folders to process");
         });
-
-        try {
-            Files.createDirectories(temporaryPath);
-            Utils.cleanTemp();
-        } catch (IOException e) {
-            SwingUtilities.invokeLater(() ->
-                    progressForm.processError("Failed to create or clear OGX temporary directory")
-            );
-            return;
-        }
 
         ArrayList<Path> inputItems = new ArrayList<>();
 
@@ -113,6 +103,16 @@ public class Pack implements Runnable {
         addEventNow("Found %d valid entries to process".formatted(totalEntries));
 
         for (Path entry : inputItems) {
+            try {
+                Files.createDirectories(Utils.temporaryPath);
+                Utils.cleanTemp();
+            } catch (IOException e) {
+                SwingUtilities.invokeLater(() ->
+                        progressForm.processError("Failed to create or clear OGX temporary directory")
+                );
+                return;
+            }
+
             SwingUtilities.invokeLater(() -> progressForm.getCurrentProgress().setValue(0));
 
             entry = entry.toAbsolutePath();
@@ -144,7 +144,7 @@ public class Pack implements Runnable {
             ));
 
             // Extract XBE
-            Path extractedXbePath = temporaryPath.resolve("default.xbe");
+            Path extractedXbePath = Utils.temporaryPath.resolve("default.xbe");
             try {
                 XDVDFSHelper.extractXBE(entry, extractedXbePath, xdvdfs);
             } catch (IOException e) {
@@ -191,6 +191,7 @@ public class Pack implements Runnable {
             });
 
             boolean shouldSplit = config.split() == GuiConfig.Split.HALF;
+            boolean hasAttacher = config.attacher() != GuiConfig.Attacher.NONE;
 
             // This is dumb, but I've used this dumb before
             final long[] extractedFiles = {0};
@@ -203,6 +204,7 @@ public class Pack implements Runnable {
                     progressForm.addEvent(event);
 
                     int total = shouldSplit ? 50 : 90;
+                    total = !hasAttacher && !shouldSplit ? total + 10 : total;
 
                     int progress = (int) ((extractedFiles[0] / ((float) entryStat[0])) * total);
 
@@ -246,7 +248,9 @@ public class Pack implements Runnable {
                 SplitImage imageSplitter = new SplitImage(packedImage, currentOutputFolder);
 
                 imageSplitter.setListener(percentage -> SwingUtilities.invokeLater(() -> {
-                    int progress = (int) (Math.max(0, Math.min(100, percentage)) * 0.4F);
+                    float val = hasAttacher ? 0.4F : 0.5F;
+
+                    int progress = (int) (Math.max(0, Math.min(100, percentage)) * val);
 
                     progressForm.getCurrentProgress().setValue(50 + progress);
                 }));
@@ -264,8 +268,13 @@ public class Pack implements Runnable {
                 SwingUtilities.invokeLater(() -> progressForm.getCurrentProgress().setValue(90));
             }
 
-            if (config.attacher() == GuiConfig.Attacher.NONE) {
-                SwingUtilities.invokeLater(() -> progressForm.getCurrentProgress().setValue(100));
+            int finalCurrentEntry = currentEntry;
+            if (!hasAttacher) {
+                SwingUtilities.invokeLater(() ->  {
+                    progressForm.getCurrentProgress().setValue(100);
+                    int progress = (int) ((finalCurrentEntry / ((float) totalEntries)) * 100);
+                    progressForm.getTotalProgress().setValue(progress);
+                });
                 continue;
             }
 
@@ -275,7 +284,21 @@ public class Pack implements Runnable {
                 return;
             }
 
-            int finalCurrentEntry = currentEntry;
+            try {
+                Attacher attacherManager = new Attacher(
+                        extractedXbe,
+                        game,
+                        currentOutputFolder.resolve("default.xbe")
+                );
+
+                attacherManager.create(config.attacher());
+            } catch (IOException e) {
+                addEventNow("Error creating attacher, skipping...");
+                continue;
+            }
+
+            addEventNow("Done");
+
             SwingUtilities.invokeLater(() -> {
                 int progress = (int) ((finalCurrentEntry / ((float) totalEntries)) * 100);
                 progressForm.getTotalProgress().setValue(progress);
@@ -283,6 +306,7 @@ public class Pack implements Runnable {
         }
 
         SwingUtilities.invokeLater(() -> {
+            progressForm.getCurrentProgress().setValue(100);
             progressForm.getTotalProgress().setValue(100);
             progressForm.addEvent("All done!");
             progressForm.finish();

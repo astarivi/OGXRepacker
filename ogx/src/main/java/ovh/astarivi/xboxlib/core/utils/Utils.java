@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.util.stream.Stream;
 
 public class Utils {
+    public final static Path temporaryPath = Path.of("ogxrepacker/temp").toAbsolutePath();
     public static boolean containsDefaultXbe(Path directory) {
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(directory, entry ->
             entry.getFileName().toString().equalsIgnoreCase("default.xbe")
@@ -37,7 +38,7 @@ public class Utils {
     }
 
     public static void cleanTemp() throws IOException {
-        try (Stream<Path> stream = Files.walk(Path.of("ogxrepacker/temp").toAbsolutePath())){
+        try (Stream<Path> stream = Files.walk(temporaryPath)){
             //noinspection ResultOfMethodCallIgnored
             stream
                     .filter(Files::isRegularFile)

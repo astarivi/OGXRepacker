@@ -59,8 +59,7 @@ public class MainForm {
         attacherCombo.setModel(new DefaultComboBoxModel<>(new String[]{
                 "Cerbios",
                 "Stellar",
-                "DriveImageUtils",
-                "Legacy",
+                "DriveImageUtils (Legacy)",
                 "None"
         }));
 

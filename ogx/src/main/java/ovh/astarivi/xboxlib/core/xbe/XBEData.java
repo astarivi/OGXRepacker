@@ -135,7 +135,7 @@ public class XBEData {
             dwTimeDate = buffer.getInt();
             int intermediateTitleId = buffer.getInt();
             dwTitleId = String.format("%08X", intermediateTitleId).toUpperCase();
-            wszTitleName = new byte[40];
+            wszTitleName = new byte[80];
             buffer.get(wszTitleName);
             dwAlternateTitleId = new byte[16];
             buffer.get(dwAlternateTitleId);
