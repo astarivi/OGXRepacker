@@ -28,8 +28,8 @@ pub async fn open_image_raw(
     path: &Path,
 ) -> Result<OffsetWrapper<BufReader<File>, std::io::Error>, anyhow::Error> {
     let img = File::options().read(true).open(path)?;
-    let img = std::io::BufReader::new(img);
-    Ok(xdvdfs::blockdev::OffsetWrapper::new(img).await?)
+    let img = BufReader::new(img);
+    Ok(OffsetWrapper::new(img).await?)
 }
 
 #[maybe_async]
@@ -48,7 +48,7 @@ pub async fn open_image(
                     break;
                 }
 
-                let part = std::io::BufReader::new(std::fs::File::open(part)?);
+                let part = BufReader::new(File::open(part)?);
                 files.push(part);
             }
 
@@ -58,11 +58,11 @@ pub async fn open_image(
 
             Box::from(ciso::split::SplitFileReader::new(files).await?)
         } else {
-            let file = std::io::BufReader::new(std::fs::File::open(path)?);
+            let file = BufReader::new(File::open(path)?);
             Box::from(file)
         };
 
-        let reader = ciso::read::CSOReader::new(reader).await?;
+        let reader = CSOReader::new(reader).await?;
         let reader = Box::from(CSOBlockDevice { inner: reader });
         Ok(reader)
     } else {

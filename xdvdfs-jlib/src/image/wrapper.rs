@@ -1,13 +1,13 @@
-use std::io::{BufWriter, Seek, SeekFrom, Write, Result};
 use maybe_async::maybe_async;
 use splitfile::SplitFile;
+use std::io::{BufWriter, Result, Seek, SeekFrom, Write};
 use xdvdfs::blockdev::BlockDeviceWrite;
 
 pub struct SplitBufWriterWrapper(pub BufWriter<SplitFile>);
 
-impl SplitBufWriterWrapper{
+impl SplitBufWriterWrapper {
     // hippity hoppity your experimental feature is now my property
-    pub fn len(&mut self) -> Result<u64>{
+    pub fn len(&mut self) -> Result<u64> {
         let old_pos = self.stream_position()?;
         let len = self.seek(SeekFrom::End(0))?;
 
@@ -37,7 +37,11 @@ impl Write for SplitBufWriterWrapper {
 
 #[maybe_async]
 impl BlockDeviceWrite<std::io::Error> for SplitBufWriterWrapper {
-    async fn write(&mut self, offset: u64, buffer: &[u8]) -> core::result::Result<(), std::io::Error> {
+    async fn write(
+        &mut self,
+        offset: u64,
+        buffer: &[u8],
+    ) -> core::result::Result<(), std::io::Error> {
         self.seek(SeekFrom::Start(offset))?;
         self.write_all(buffer)?;
 
@@ -45,6 +49,6 @@ impl BlockDeviceWrite<std::io::Error> for SplitBufWriterWrapper {
     }
 
     async fn len(&mut self) -> core::result::Result<u64, std::io::Error> {
-        Ok(self.len()?)
+        self.len()
     }
 }
