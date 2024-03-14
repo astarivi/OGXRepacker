@@ -11,6 +11,7 @@ maybe-async = { version = "0.2.7", features = ["is_sync"] }
 anyhow = "1.0.80"
 tokio = { version = "1.36.0" , features = ["rt", "rt-multi-thread"] }
 ciso = "0.2.1"
+splitfile = { path = "../../splitfile-rs" }
 
 [features]
 sync = ["xdvdfs/sync", "maybe-async/is_sync"]

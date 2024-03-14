@@ -1,7 +1,7 @@
 mod img;
 mod java;
 mod read;
-mod write;
+mod image;
 
 use jni::JNIEnv;
 use std::path::PathBuf;
@@ -53,7 +53,7 @@ pub extern "system" fn Java_ovh_astarivi_jxdvdfs_XDVDFS_pack<'local>(
             _ => {}
         };
 
-        let result = write::pack_img(source_path, target_path, progress_callback);
+        let result = image::write::pack_img(source_path, target_path, progress_callback);
 
         rv.shutdown_background();
 
