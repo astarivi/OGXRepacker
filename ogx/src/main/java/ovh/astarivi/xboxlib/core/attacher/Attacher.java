@@ -1,14 +1,12 @@
 package ovh.astarivi.xboxlib.core.attacher;
 
 import org.tinylog.Logger;
-
 import ovh.astarivi.xboxlib.core.storage.OGXArchive;
 import ovh.astarivi.xboxlib.core.xbe.XBE;
 import ovh.astarivi.xboxlib.gui.utils.GuiConfig;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
@@ -16,7 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
-
 import java.util.Objects;
 
 
@@ -50,21 +47,22 @@ public class Attacher {
         try (FileChannel axbe = FileChannel.open(outputFile, StandardOpenOption.WRITE)) {
             int certAddress = attacherXbe.header.dwCertificateAddr - attacherXbe.header.dwBaseAddr;
             ByteBuffer ogCert = ByteBuffer.wrap(defaultXbe.rawCert).order(ByteOrder.LITTLE_ENDIAN);
+
             int written = axbe.write(ogCert, certAddress);
 
             if (written != 464) {
                 Logger.error("Incomplete attacher certificate write for {}", defaultXbe.cert.dwTitleId);
             }
 
-            byte[] encodedBytes = game.iso_name.getBytes(java.nio.charset.StandardCharsets.UTF_16LE);
-            byte[] titleBytes = new byte[80];
-
-            System.arraycopy(encodedBytes, 0, titleBytes, 0, Math.min(encodedBytes.length, titleBytes.length));
-
-            axbe.write(
-                    ByteBuffer.wrap(titleBytes).order(ByteOrder.LITTLE_ENDIAN),
-                    certAddress + 12
-            );
+//            byte[] encodedBytes = game.iso_name.getBytes(StandardCharsets.UTF_16LE);
+//            byte[] titleBytes = new byte[80];
+//
+//            System.arraycopy(encodedBytes, 0, titleBytes, 0, Math.min(encodedBytes.length, titleBytes.length));
+//
+//            axbe.write(
+//                    ByteBuffer.wrap(titleBytes).order(ByteOrder.LITTLE_ENDIAN),
+//                    certAddress + 12
+//            );
         }
     }
 }
