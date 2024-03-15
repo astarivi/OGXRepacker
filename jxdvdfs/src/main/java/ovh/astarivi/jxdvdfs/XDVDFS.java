@@ -24,6 +24,7 @@ public class XDVDFS {
     private XDVDFSListener unpackListener = null;
 
     private native void pack(String source, String destination) throws XDVDFSException;
+    private native void packSplit(String source, String destination, long partSizeBytes) throws XDVDFSException;
     private native void unpack(String source, String destination) throws XDVDFSException;
     private native void ufile(String source, String destination, String internalSearch) throws XDVDFSException;
     private native long[] stat(String source) throws XDVDFSException;
@@ -62,12 +63,28 @@ public class XDVDFS {
      * @param output The path to save the resulting image to.
      */
     public void pack(@NotNull Path input, @NotNull Path output) throws IOException, XDVDFSException {
-        Path realInput = input.toRealPath();
-        Path realOutput = output.toAbsolutePath();
-
         this.pack(
-                realInput.toString(),
-                realOutput.toString()
+                input.toAbsolutePath().toString(),
+                output.toAbsolutePath().toString()
+        );
+    }
+
+    /**
+     * Packs a directory, or an image, to a XDVDFS XISO image.
+     * <p>
+     * Packs the input file (only XISO images are allowed) or
+     * directory to a XDVDFS XISO image, and splits the
+     * result.
+     *
+     * @param input The file or directory to convert to XISO.
+     * @param output The path to save the resulting image to.
+     * @param splitSize The size of each part, in bytes
+     */
+    public void packSplit(@NotNull Path input, @NotNull Path output, long splitSize) throws XDVDFSException {
+        this.packSplit(
+                input.toAbsolutePath().toString(),
+                output.toAbsolutePath().toString(),
+                splitSize
         );
     }
 
