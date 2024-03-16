@@ -46,7 +46,6 @@ public class ProgressForm {
                 if (task != null && !task.isDone()) {
                     task.cancel(true);
                 }
-                GuiReference.progressForm.set(null);
 
                 try {
                     Utils.cleanTemp();

@@ -253,7 +253,6 @@ public class MainForm {
         SwingUtilities.invokeLater(() -> {
             ProgressForm pForm = new ProgressForm(frame, guiConfig);
             pForm.start();
-            GuiReference.progressForm.set(pForm);
         });
     }
 }

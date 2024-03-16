@@ -190,9 +190,6 @@ public class Pack implements Runnable {
                 progressForm.getCurrentProgress().setValue(0);
             });
 
-            boolean shouldSplit = config.split() == GuiConfig.Split.HALF;
-            boolean hasAttacher = config.attacher() != GuiConfig.Attacher.NONE;
-
             // This is dumb, but I've used this dumb before
             final long[] extractedFiles = {0};
             xdvdfs.setPackListener(event ->
@@ -203,10 +200,7 @@ public class Pack implements Runnable {
 
                     progressForm.addEvent(event);
 
-                    int total = shouldSplit ? 50 : 90;
-                    total = !hasAttacher && !shouldSplit ? total + 10 : total;
-
-                    int progress = (int) ((extractedFiles[0] / ((float) entryStat[0])) * total);
+                    int progress = (int) ((extractedFiles[0] / ((float) entryStat[0])) * 100);
 
                     progressForm.getCurrentProgress().setValue(progress);
                 })
@@ -219,10 +213,14 @@ public class Pack implements Runnable {
             Path packedImage = currentOutputFolder.resolve(game.iso_name + ".iso");
             // Pack
             try {
-                xdvdfs.pack(
-                        entry,
-                        packedImage
-                );
+                if (config.split() == GuiConfig.Split.HALF) {
+                    xdvdfs.packSplit(entry, packedImage, Files.size(entry) / 2);
+                } else {
+                    xdvdfs.pack(
+                            entry,
+                            packedImage
+                    );
+                }
             } catch (IOException e) {
                 Logger.error("Failed to pack image {}", entry);
                 Logger.error(e);
@@ -242,34 +240,34 @@ public class Pack implements Runnable {
             addEventNow("Packing finished for %s".formatted(game.title));
 
             // Split
-            if (shouldSplit) {
-                addEventNow("Splitting image, please wait\nThis could take a long time");
-
-                SplitImage imageSplitter = new SplitImage(packedImage, currentOutputFolder);
-
-                imageSplitter.setListener(percentage -> SwingUtilities.invokeLater(() -> {
-                    float val = hasAttacher ? 0.4F : 0.5F;
-
-                    int progress = (int) (Math.max(0, Math.min(100, percentage)) * val);
-
-                    progressForm.getCurrentProgress().setValue(50 + progress);
-                }));
-
-                try {
-                    imageSplitter.split();
-                    Files.deleteIfExists(packedImage);
-                } catch (IOException e) {
-                    Logger.error("Failed to split image {}", entry);
-                    Logger.error(e);
-                    addEventNow("Failed split image, skipping");
-                    continue;
-                }
-
-                SwingUtilities.invokeLater(() -> progressForm.getCurrentProgress().setValue(90));
-            }
+//            if (shouldSplit) {
+//                addEventNow("Splitting image, please wait\nThis could take a long time");
+//
+//                SplitImage imageSplitter = new SplitImage(packedImage, currentOutputFolder);
+//
+//                imageSplitter.setListener(percentage -> SwingUtilities.invokeLater(() -> {
+//                    float val = hasAttacher ? 0.4F : 0.5F;
+//
+//                    int progress = (int) (Math.max(0, Math.min(100, percentage)) * val);
+//
+//                    progressForm.getCurrentProgress().setValue(50 + progress);
+//                }));
+//
+//                try {
+//                    imageSplitter.split();
+//                    Files.deleteIfExists(packedImage);
+//                } catch (IOException e) {
+//                    Logger.error("Failed to split image {}", entry);
+//                    Logger.error(e);
+//                    addEventNow("Failed split image, skipping");
+//                    continue;
+//                }
+//
+//                SwingUtilities.invokeLater(() -> progressForm.getCurrentProgress().setValue(90));
+//            }
 
             int finalCurrentEntry = currentEntry;
-            if (!hasAttacher) {
+            if (config.attacher() == GuiConfig.Attacher.NONE) {
                 SwingUtilities.invokeLater(() ->  {
                     progressForm.getCurrentProgress().setValue(100);
                     int progress = (int) ((finalCurrentEntry / ((float) totalEntries)) * 100);
