@@ -28,7 +28,7 @@ public class ProgressForm {
 
     public ProgressForm(JFrame parentFrame, GuiConfig config) {
         this.config = config;
-        dialog = new JDialog(parentFrame, "Repacking progress", true);
+        dialog = new JDialog(parentFrame, "OGXRepacker - Repacking in progress", true);
 
         dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         dialog.setContentPane(rootPanel);

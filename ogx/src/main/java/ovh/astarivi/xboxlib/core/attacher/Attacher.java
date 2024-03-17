@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -28,7 +29,7 @@ public class Attacher {
         this.outputFile = outputFile;
     }
 
-    public void create(GuiConfig.Attacher attacher) throws IOException {
+    public void create(GuiConfig.Attacher attacher, GuiConfig.Naming naming) throws IOException {
         String attacherRoute = switch (attacher) {
             case CERBIOS -> "attacher/cerbios.xbe";
             case STELLAR -> "attacher/stellar.xbe";
@@ -54,15 +55,17 @@ public class Attacher {
                 Logger.error("Incomplete attacher certificate write for {}", defaultXbe.cert.dwTitleId);
             }
 
-//            byte[] encodedBytes = game.iso_name.getBytes(StandardCharsets.UTF_16LE);
-//            byte[] titleBytes = new byte[80];
-//
-//            System.arraycopy(encodedBytes, 0, titleBytes, 0, Math.min(encodedBytes.length, titleBytes.length));
-//
-//            axbe.write(
-//                    ByteBuffer.wrap(titleBytes).order(ByteOrder.LITTLE_ENDIAN),
-//                    certAddress + 12
-//            );
+            if (naming == GuiConfig.Naming.KEEP_FILENAME) return;
+
+            byte[] encodedBytes = game.xbe_title.getBytes(StandardCharsets.UTF_16LE);
+            byte[] titleBytes = new byte[80];
+
+            System.arraycopy(encodedBytes, 0, titleBytes, 0, Math.min(encodedBytes.length, titleBytes.length));
+
+            axbe.write(
+                    ByteBuffer.wrap(titleBytes).order(ByteOrder.LITTLE_ENDIAN),
+                    certAddress + 12
+            );
         }
     }
 }

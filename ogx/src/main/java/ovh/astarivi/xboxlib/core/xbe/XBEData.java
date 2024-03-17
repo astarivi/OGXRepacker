@@ -133,11 +133,10 @@ public class XBEData {
 
             dwSize = buffer.getInt();
             dwTimeDate = buffer.getInt();
-            int intermediateTitleId = buffer.getInt();
-            dwTitleId = String.format("%08X", intermediateTitleId).toUpperCase();
+            dwTitleId = String.format("%08X", buffer.getInt()).toUpperCase();
             wszTitleName = new byte[80];
             buffer.get(wszTitleName);
-            dwAlternateTitleId = new byte[16];
+            dwAlternateTitleId = new byte[64];
             buffer.get(dwAlternateTitleId);
             dwAllowedMedia = buffer.getInt();
             dwGameRegion = buffer.getInt();
@@ -185,6 +184,33 @@ public class XBEData {
             }
 
             return code;
+        }
+
+        public String getAltRegionCode() {
+            if(regionUSA && regionJapan && regionEurope) {
+                return "GLO";
+            }
+
+            if(!regionUSA && !regionJapan && !regionEurope) {
+                return "UNK";
+            }
+
+            if(regionUSA && regionJapan) {
+                return "U-J";
+            }
+
+            if (regionUSA && regionEurope) {
+                return "U-P";
+            }
+
+            if (regionEurope && regionJapan) {
+                return "P-J";
+            }
+
+            if (regionUSA) return "USA";
+            if (regionEurope) return "PAL";
+
+            return "JAP";
         }
     }
 

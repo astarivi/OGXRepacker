@@ -4,8 +4,8 @@ import org.tinylog.Logger;
 import ovh.astarivi.jxdvdfs.XDVDFS;
 import ovh.astarivi.jxdvdfs.base.XDVDFSException;
 import ovh.astarivi.xboxlib.core.attacher.Attacher;
-import ovh.astarivi.xboxlib.core.naming.OGXName;
-import ovh.astarivi.xboxlib.core.split.SplitImage;
+import ovh.astarivi.xboxlib.core.naming.GameName;
+import ovh.astarivi.xboxlib.core.split.SplitUtils;
 import ovh.astarivi.xboxlib.core.storage.OGXArchive;
 import ovh.astarivi.xboxlib.core.utils.Utils;
 import ovh.astarivi.xboxlib.core.utils.XDVDFSHelper;
@@ -168,7 +168,7 @@ public class Pack implements Runnable {
             }
 
             // Naming
-            OGXArchive.Game game = OGXName.getForGame(
+            OGXArchive.Game game = GameName.getForGame(
                     extractedXbe,
                     entry,
                     config.naming() == GuiConfig.Naming.OGXREPACKER
@@ -214,7 +214,13 @@ public class Pack implements Runnable {
             // Pack
             try {
                 if (config.split() == GuiConfig.Split.HALF) {
-                    xdvdfs.packSplit(entry, packedImage, Files.size(entry) / 2);
+                    xdvdfs.packSplit(
+                            entry,
+                            packedImage,
+                            Files.size(entry) / 2
+                    );
+
+                    SplitUtils.rename(packedImage);
                 } else {
                     xdvdfs.pack(
                             entry,
@@ -239,33 +245,6 @@ public class Pack implements Runnable {
 
             addEventNow("Packing finished for %s".formatted(game.title));
 
-            // Split
-//            if (shouldSplit) {
-//                addEventNow("Splitting image, please wait\nThis could take a long time");
-//
-//                SplitImage imageSplitter = new SplitImage(packedImage, currentOutputFolder);
-//
-//                imageSplitter.setListener(percentage -> SwingUtilities.invokeLater(() -> {
-//                    float val = hasAttacher ? 0.4F : 0.5F;
-//
-//                    int progress = (int) (Math.max(0, Math.min(100, percentage)) * val);
-//
-//                    progressForm.getCurrentProgress().setValue(50 + progress);
-//                }));
-//
-//                try {
-//                    imageSplitter.split();
-//                    Files.deleteIfExists(packedImage);
-//                } catch (IOException e) {
-//                    Logger.error("Failed to split image {}", entry);
-//                    Logger.error(e);
-//                    addEventNow("Failed split image, skipping");
-//                    continue;
-//                }
-//
-//                SwingUtilities.invokeLater(() -> progressForm.getCurrentProgress().setValue(90));
-//            }
-
             int finalCurrentEntry = currentEntry;
             if (config.attacher() == GuiConfig.Attacher.NONE) {
                 SwingUtilities.invokeLater(() ->  {
@@ -289,7 +268,7 @@ public class Pack implements Runnable {
                         currentOutputFolder.resolve("default.xbe")
                 );
 
-                attacherManager.create(config.attacher());
+                attacherManager.create(config.attacher(), config.naming());
             } catch (IOException e) {
                 addEventNow("Error creating attacher, skipping...");
                 continue;
