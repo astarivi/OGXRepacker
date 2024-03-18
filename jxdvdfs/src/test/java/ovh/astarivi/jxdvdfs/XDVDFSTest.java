@@ -61,4 +61,16 @@ public class XDVDFSTest {
                 "/default.xbe"
         );
     }
+
+    @Test
+    @DisplayName("XDVDFS split pack")
+    void testSplitPack() throws Exception{
+        XDVDFS xdvdfs = new XDVDFS();
+
+        xdvdfs.packSplit(
+                Path.of("D:\\xbox\\test\\redump.iso"),
+                Path.of("D:\\xbox\\test\\output.iso"),
+                619430400
+        );
+    }
 }

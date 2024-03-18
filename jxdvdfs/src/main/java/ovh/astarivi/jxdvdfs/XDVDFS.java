@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.tinylog.Logger;
+import ovh.astarivi.jxdvdfs.base.NativeLoader;
 import ovh.astarivi.jxdvdfs.base.XDVDFSException;
 import ovh.astarivi.jxdvdfs.base.XDVDFSListener;
 
@@ -31,7 +32,7 @@ public class XDVDFS {
 
     public XDVDFS() {
         if (!libraryLoaded) {
-            System.loadLibrary("xdvdfs_jlib");
+            NativeLoader.load("xdvdfs_jlib");
             libraryLoaded = true;
         }
     }

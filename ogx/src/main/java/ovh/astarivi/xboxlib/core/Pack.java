@@ -17,7 +17,6 @@ import javax.swing.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
@@ -79,15 +78,7 @@ public class Pack implements Runnable {
 
         XDVDFS xdvdfs;
         try {
-            // TODO replace this when the lib is packed into the .jar
-            Path debugLibraryPath = Paths.get("")
-                    .toAbsolutePath()
-                    .getParent()
-                    .resolve("xdvdfs-jlib")
-                    .resolve("target")
-                    .resolve("debug")
-                    .resolve(System.mapLibraryName("xdvdfs_jlib"));
-            xdvdfs = new XDVDFS(debugLibraryPath.toString());
+            xdvdfs = new XDVDFS();
         } catch(Exception e) {
             Logger.error("Failed to initialize native XDVDFS!");
             Logger.error(e);
@@ -177,6 +168,11 @@ public class Pack implements Runnable {
             addEventNow("Entry identified as %s".formatted(game.title));
 
             Path currentOutputFolder = config.outputField().resolve(game.title);
+
+            if (Files.isDirectory(currentOutputFolder)) {
+                addEventNow("Output folder already exists %s, skipping".formatted(currentOutputFolder.toString()));
+                continue;
+            }
 
             try {
                 Files.createDirectories(currentOutputFolder);
@@ -283,7 +279,9 @@ public class Pack implements Runnable {
         }
 
         SwingUtilities.invokeLater(() -> {
+            progressForm.getCurrentProgress().setIndeterminate(false);
             progressForm.getCurrentProgress().setValue(100);
+            progressForm.getTotalProgress().setIndeterminate(false);
             progressForm.getTotalProgress().setValue(100);
             progressForm.addEvent("All done!");
             progressForm.finish();

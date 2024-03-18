@@ -16,12 +16,13 @@ import java.util.Map;
 
 public class OGXArchive {
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class Game {
+    public static class Game implements Cloneable{
         public String title_id;
         public String title;
         public String iso_name;
         public String xbe_title;
 
+        @SuppressWarnings("unused")
         public Game() {
         }
 
@@ -35,9 +36,15 @@ public class OGXArchive {
 
         @JsonIgnore
         public static @Nullable OGXArchive.Game retrieve(String titleId) {
-            return PersistenceRepository.getInstance().getGamesArchive().get(
+            OGXArchive.Game g = PersistenceRepository.getInstance().getGamesArchive().get(
                     titleId
             );
+
+            if (g == null) {
+                return null;
+            }
+
+            return g.clone();
         }
 
         @JsonIgnore
@@ -55,6 +62,16 @@ public class OGXArchive {
                     entryFilename.substring(0, Math.min(entryFilename.length(), 36)),
                     entryFilename.substring(0, Math.min(entryFilename.length(), 40))
             );
+        }
+
+        @JsonIgnore
+        @Override
+        public Game clone() {
+            try {
+                return (Game) super.clone();
+            } catch (CloneNotSupportedException e) {
+                throw new AssertionError();
+            }
         }
     }
 
