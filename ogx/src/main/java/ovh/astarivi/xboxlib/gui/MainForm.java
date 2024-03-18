@@ -7,6 +7,7 @@ import ovh.astarivi.xboxlib.gui.utils.GuiConfig;
 import ovh.astarivi.xboxlib.gui.utils.JComboListener;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -33,6 +34,7 @@ public class MainForm {
         loadValues();
 
         frame = new JFrame("OGXRepacker");
+        frame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icon.png")));
         frame.setContentPane(rootPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
