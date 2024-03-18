@@ -2,13 +2,30 @@ plugins {
     id 'java'
     id 'io.freefair.lombok' version '8.6'
     id 'idea'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
-apply plugin: 'application'
-
-mainClassName = 'ovh.astarivi.xboxlib.Main'
 group = 'ovh.astarivi.xboxlib'
 version = '1.0'
+
+// Dist option 1 (:ogx:distZip)
+// Also serves as a development entrypoint (:ogx:build run)
+application {
+    mainClass = 'ovh.astarivi.xboxlib.Main'
+}
+
+// Dist option 2 (:ogx:shadowJar)
+jar {
+    manifest {
+        attributes 'Main-Class': 'ovh.astarivi.xboxlib.Main'
+    }
+}
+
+shadowJar {
+    mergeServiceFiles()
+    archiveFileName = 'OGXRepacker.jar'
+}
 
 repositories {
     mavenCentral()
@@ -49,7 +66,6 @@ dependencies {
     // Testing
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.2'
 }
-
 
 // Wonderful little spaghetti to integrate IntelliJ Swing GUI designer into Gradle
 task compileJava(type: JavaCompile, overwrite: true, dependsOn: configurations.runtimeClasspath.getTaskDependencyFromProjectDependency(true, 'jar')) {

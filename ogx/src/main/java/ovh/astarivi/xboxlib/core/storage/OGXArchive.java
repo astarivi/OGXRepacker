@@ -78,7 +78,9 @@ public class OGXArchive {
     public static Map<String, Game> loadArchive() throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        try (InputStream inputStream = OGXArchive.class.getClassLoader().getResourceAsStream("archive.json")) {
+        try (InputStream inputStream = OGXArchive.class.getClassLoader().getResourceAsStream(
+                "ovh/astarivi/xboxlib/res/archive.json"
+        )) {
             return objectMapper.readValue(inputStream, new TypeReference<>() {});
         }
     }

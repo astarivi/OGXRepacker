@@ -11,12 +11,10 @@ public class Main {
     public static void startGUI() {
         FlatMoonlightIJTheme.setup();
 
-        SwingUtilities.invokeLater(() -> {
-            MainForm mainForm = new MainForm();
-        });
+        SwingUtilities.invokeLater(MainForm::new);
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         startGUI();
     }
 }

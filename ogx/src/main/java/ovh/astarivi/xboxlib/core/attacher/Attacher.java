@@ -31,9 +31,9 @@ public class Attacher {
 
     public void create(GuiConfig.Attacher attacher, GuiConfig.Naming naming) throws IOException {
         String attacherRoute = switch (attacher) {
-            case CERBIOS -> "attacher/cerbios.xbe";
-            case STELLAR -> "attacher/stellar.xbe";
-            case DRIVE_IMAGE_UTILS -> "attacher/driveimageutils.xbe";
+            case CERBIOS -> "ovh/astarivi/xboxlib/res/attacher/cerbios.xbe";
+            case STELLAR -> "ovh/astarivi/xboxlib/res/attacher/stellar.xbe";
+            case DRIVE_IMAGE_UTILS -> "ovh/astarivi/xboxlib/res/attacher/driveimageutils.xbe";
             default -> throw new IllegalArgumentException("Invalid attacher value");
         };
 

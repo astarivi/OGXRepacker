@@ -46,7 +46,7 @@ public class NativeLoader {
 
         String libraryName = System.mapLibraryName(name);
 
-        String effectivePath = "%s/%s/%s".formatted(
+        String effectivePath = "ovh/astarivi/jxdvdfs/native/%s/%s/%s".formatted(
                 effectiveOs,
                 effectiveArch,
                 libraryName

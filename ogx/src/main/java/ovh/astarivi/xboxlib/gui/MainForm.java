@@ -9,6 +9,7 @@ import ovh.astarivi.xboxlib.gui.utils.JComboListener;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,7 +35,13 @@ public class MainForm {
         loadValues();
 
         frame = new JFrame("OGXRepacker");
-        frame.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icon.png")));
+        frame.setIconImage(
+                Toolkit.getDefaultToolkit().getImage(
+                        getClass().getResource(
+                                "/ovh/astarivi/xboxlib/res/icon.png"
+                        )
+                )
+        );
         frame.setContentPane(rootPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
@@ -158,6 +165,13 @@ public class MainForm {
 
             outputField.setText(filename);
             saveSettings();
+        });
+
+        openInputButton.addActionListener(e -> {
+            try {
+                Desktop.getDesktop().open(new File(inputField.getText()));
+            } catch (Exception ignored) {
+            }
         });
 
         processButton.addActionListener(this::startProcess);
