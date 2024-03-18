@@ -10,7 +10,7 @@ jni = "0.21.1"
 maybe-async = { version = "0.2.10", features = ["is_sync"] }
 anyhow = "1.0.81"
 ciso = "0.2.1"
-splitfile = { path = "../../splitfile-rs" }
+splitfile = "0.2.0"
 
 [features]
 sync = ["xdvdfs/sync", "maybe-async/is_sync"]
