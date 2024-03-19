@@ -257,6 +257,16 @@ public class MainForm {
             return;
         }
 
+        if (inputPath.toAbsolutePath() == outputPath.toAbsolutePath()) {
+            JOptionPane.showMessageDialog(
+                    rootPanel,
+                    "Input folder cannot be the same as the output folder.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
         GuiConfig guiConfig = new GuiConfig(
                 inputPath,
                 outputPath,

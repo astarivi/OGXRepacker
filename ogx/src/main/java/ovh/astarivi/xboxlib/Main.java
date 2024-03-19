@@ -4,7 +4,6 @@ import com.formdev.flatlaf.intellijthemes.materialthemeuilite.FlatMoonlightIJThe
 import ovh.astarivi.xboxlib.gui.MainForm;
 
 import javax.swing.*;
-import java.io.IOException;
 
 
 public class Main {

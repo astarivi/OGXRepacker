@@ -213,7 +213,7 @@ public class Pack implements Runnable {
                     xdvdfs.packSplit(
                             entry,
                             packedImage,
-                            Files.size(entry) / 2
+                            entryStat[1]
                     );
 
                     SplitUtils.rename(packedImage);

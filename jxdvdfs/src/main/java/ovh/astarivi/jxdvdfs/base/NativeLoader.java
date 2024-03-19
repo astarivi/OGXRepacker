@@ -19,6 +19,7 @@ public class NativeLoader {
 
         HashMap<String, String> archMap = new HashMap<>();
         archMap.put("x86", "i686");
+        archMap.put("x86_32", "i686");
         archMap.put("i386", "i686");
         archMap.put("i486", "i686");
         archMap.put("i586", "i686");
