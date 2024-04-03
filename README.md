@@ -13,13 +13,11 @@ Don't know what any of that means?, leave the settings on its defaults, select a
 "Process" to get started.
 
 # Quickstart
-Download the latest OGXRepacker release. 
+Download the latest OGXRepacker release.
 
-If you are in Windows and don't know how to use, or don't have Java 21, try the [easy variant](), download it, extract 
-it, and execute "run.bat" to get started.
-
-Everyone else, download the [universal variant]() and run it with Java 21. Double-clicking it works too, but only if
-your system has Java 21 set as the default file association for .jar files.
+Download the latest [self executing package](https://github.com/astarivi/OGXRepacker/releases/latest/download/OGXRepacker.jar) 
+and run it with Java 21, like this; `java -jar OGXRepacker.jar`.
+Double-clicking it works too, but only if your system has Java 21 set as the default file association for .jar files.
 
 # Features
 
@@ -57,9 +55,7 @@ Every feature available in OGXRepacker is listed here.
 - OS: Windows, Linux
 - Architecture: x64, x86, ARM64, ARM
 - Display: A graphical system for display
-- Java >11 (Java 21 recommended)¹
-
-¹ "easy" windows build variants include Java 21 JRE
+- Java >17 (Java 21 recommended)
 
 # Planned Features
 
