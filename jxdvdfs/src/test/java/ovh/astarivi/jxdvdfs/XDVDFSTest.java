@@ -9,7 +9,7 @@ import ovh.astarivi.jxdvdfs.base.XDVDFSException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
+
 
 public class XDVDFSTest {
 
@@ -43,11 +43,11 @@ public class XDVDFSTest {
     void testStat() throws IOException, XDVDFSException {
         XDVDFS xdvdfs = new XDVDFS();
 
-        Logger.info(Arrays.toString(
+        Logger.info(
                 xdvdfs.stat(
                         Path.of("D:\\xbox\\test\\redump.iso")
                 )
-        ));
+        );
     }
 
     @Test

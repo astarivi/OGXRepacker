@@ -1,19 +1,15 @@
 [package]
 name = "xdvdfs-jlib"
-description = "Java JNI compatible XDVDFS implementation"
-version = "0.1.0"
+description = "Java JNI compatible XDVDFS bindings"
+version = "0.2.0"
 edition = "2018"
 
 [dependencies]
-xdvdfs = { path = "../../xdvdfs/xdvdfs-core", version = "0.8.0" }
+xdvdfs = { version = "0.8.3", features = ["sync", "read", "std", "write"], default-features = false }
 jni = "0.21.1"
-maybe-async = { version = "0.2.10", features = ["is_sync"] }
-anyhow = "1.0.81"
+anyhow = "1.0.95"
 ciso = "0.2.1"
 splitfile = "0.2.0"
-
-[features]
-sync = ["xdvdfs/sync", "maybe-async/is_sync"]
 
 [lib]
 crate_type = ["cdylib"]

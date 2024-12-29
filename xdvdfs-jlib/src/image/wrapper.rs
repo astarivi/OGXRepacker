@@ -1,4 +1,3 @@
-use maybe_async::maybe_async;
 use splitfile::SplitFile;
 use std::io::{BufWriter, Result, Seek, SeekFrom, Write};
 use xdvdfs::blockdev::BlockDeviceWrite;
@@ -35,9 +34,8 @@ impl Write for SplitBufWriterWrapper {
     }
 }
 
-#[maybe_async]
 impl BlockDeviceWrite<std::io::Error> for SplitBufWriterWrapper {
-    async fn write(
+    fn write(
         &mut self,
         offset: u64,
         buffer: &[u8],
@@ -48,7 +46,7 @@ impl BlockDeviceWrite<std::io::Error> for SplitBufWriterWrapper {
         Ok(())
     }
 
-    async fn len(&mut self) -> core::result::Result<u64, std::io::Error> {
+    fn len(&mut self) -> core::result::Result<u64, std::io::Error> {
         self.len()
     }
 }

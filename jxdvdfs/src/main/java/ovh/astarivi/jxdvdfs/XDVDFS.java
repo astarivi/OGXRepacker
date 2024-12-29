@@ -5,9 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.tinylog.Logger;
-import ovh.astarivi.jxdvdfs.base.NativeLoader;
-import ovh.astarivi.jxdvdfs.base.XDVDFSException;
-import ovh.astarivi.jxdvdfs.base.XDVDFSListener;
+import ovh.astarivi.jxdvdfs.base.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -29,6 +27,7 @@ public class XDVDFS {
     private native void unpack(String source, String destination) throws XDVDFSException;
     private native void ufile(String source, String destination, String internalSearch) throws XDVDFSException;
     private native long[] stat(String source) throws XDVDFSException;
+    private native long[] fstat(String source, String internalSearch) throws XDVDFSException;
 
     public XDVDFS() {
         if (!libraryLoaded) {
@@ -99,14 +98,16 @@ public class XDVDFS {
      * @return Returns the file count, and the total size in bytes,
      * in that order.
      */
-    public long[] stat(Path image) throws IOException, XDVDFSException {
+    public XDVDFSStat stat(Path image) throws IOException, XDVDFSException {
         Path realPath = image.toRealPath();
 
         if (!realPath.toString().toLowerCase().endsWith(".iso")) {
             throw new IllegalArgumentException(".iso extension expected for image param");
         }
 
-        return this.stat(realPath.toString());
+        long[] result = this.stat(realPath.toString());
+
+        return new XDVDFSStat(result[0], result[1], result[2], result[3]);
     }
 
     /**
@@ -166,5 +167,31 @@ public class XDVDFS {
                 realOutput.toString(),
                 searchFile
         );
+    }
+
+
+    /**
+     * Searches for a single file contained within the volume, and
+     * returns the offset (all other offset inclusive), and reported size.
+     *
+     * @param image Path to an .iso (XISO) image.
+     * @param searchFile Path to a file within the image, ex: "/default.xbe". Case-insensitive.
+     */
+    public XDVDFSFile fileStat(
+            @NotNull Path image,
+            @NotNull String searchFile
+    ) throws IOException, XDVDFSException {
+        Path realImage = image.toRealPath();
+
+        if (searchFile.isBlank()) {
+            throw new IllegalArgumentException("searchFile param cannot be blank");
+        }
+
+        long[] result = fstat(
+                realImage.toString(),
+                searchFile
+        );
+
+        return new XDVDFSFile(result[0], result[1]);
     }
 }

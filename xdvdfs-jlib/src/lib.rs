@@ -32,7 +32,7 @@ pub extern "system" fn Java_ovh_astarivi_jxdvdfs_XDVDFS_pack<'local>(
 
         let mut target_image = std::io::BufWriter::with_capacity(1024 * 1024, target_image);
 
-        image::write::pack(source_path, &mut target_image, sender)
+        image::write::pack(&source_path, &mut target_image, sender)
     });
 
     while let Ok(data) = receiver.recv() {
@@ -74,7 +74,7 @@ pub extern "system" fn Java_ovh_astarivi_jxdvdfs_XDVDFS_packSplit<'local>(
         let mut target_image =
             SplitBufWriterWrapper(std::io::BufWriter::with_capacity(1024 * 1024, target_image));
 
-        image::write::pack(source_path, &mut target_image, sender)
+        image::write::pack(&source_path, &mut target_image, sender)
     });
 
     while let Ok(data) = receiver.recv() {
@@ -106,10 +106,10 @@ pub extern "system" fn Java_ovh_astarivi_jxdvdfs_XDVDFS_stat<'local>(
 
     let result = image::read::stat(&source_path);
 
-    return match result {
+    match result {
         Ok(val) => {
             let result_arr = env
-                .new_long_array(2)
+                .new_long_array(4)
                 .expect("Failed to create return array");
             env.set_long_array_region(&result_arr, 0, &val)
                 .expect("Failed to set return array region.");
@@ -119,7 +119,38 @@ pub extern "system" fn Java_ovh_astarivi_jxdvdfs_XDVDFS_stat<'local>(
             java::throw_exception(&mut env, format!("Image read error: {}", err));
             std::process::exit(1);
         }
-    };
+    }
+}
+
+#[no_mangle]
+pub extern "system" fn Java_ovh_astarivi_jxdvdfs_XDVDFS_fstat<'local>(
+    mut env: JNIEnv<'local>,
+    _object: JObject<'local>,
+    source: JString<'local>,
+    internal_file: JString<'local>,
+) -> jlongArray {
+    let source_str = java::decode_string(&mut env, &source);
+    let internal_str = java::decode_string(&mut env, &internal_file);
+
+    let result = image::read::file_offset(
+        &source_str,
+        &internal_str,
+    );
+
+    match result {
+        Ok(val) => {
+            let result_arr = env
+                .new_long_array(2)
+                .expect("Failed to create return array");
+            env.set_long_array_region(&result_arr, 0, &val)
+                .expect("Failed to set return array region.");
+            result_arr.into_raw()
+        }
+        Err(err) => {
+            java::throw_exception(&mut env, format!("File stat error: {}", err));
+            std::process::exit(1);
+        }
+    }
 }
 
 #[no_mangle]
