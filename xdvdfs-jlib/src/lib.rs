@@ -21,15 +21,21 @@ pub extern "system" fn Java_ovh_astarivi_jxdvdfs_XDVDFS_pack<'local>(
     let source_path: PathBuf = PathBuf::from(java::decode_string(&mut env, &source));
     let target_path: PathBuf = PathBuf::from(java::decode_string(&mut env, &destination));
 
+    let target_image = match std::fs::File::options()
+        .write(true)
+        .truncate(true)
+        .create(true)
+        .open(target_path) {
+        Ok(f) => f,
+        Err(err) => {
+            java::throw_exception(&mut env, format!("Error creating target file: {:?}", err));
+            return;
+        }
+    };
+
     let (sender, receiver) = mpsc::channel();
 
-    let result_handle = thread::spawn(|| {
-        let target_image = std::fs::File::options()
-            .write(true)
-            .truncate(true)
-            .create(true)
-            .open(target_path)?;
-
+    let result_handle = thread::spawn(move || {
         let mut target_image = std::io::BufWriter::with_capacity(1024 * 1024, target_image);
 
         image::write::pack(&source_path, &mut target_image, sender)

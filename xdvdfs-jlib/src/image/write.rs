@@ -6,7 +6,7 @@ use xdvdfs::write::fs::{StdFilesystem, XDVDFSFilesystem};
 use xdvdfs::write::img::{create_xdvdfs_image, ProgressInfo};
 
 
-pub async fn pack<H: BlockDeviceWrite<std::io::Error> + std::io::Write + std::io::Seek>(
+pub fn pack<H: BlockDeviceWrite<std::io::Error> + std::io::Write + std::io::Seek>(
     source_path: &PathBuf,
     target_image: &mut H,
     progress_sender: Sender<String>,

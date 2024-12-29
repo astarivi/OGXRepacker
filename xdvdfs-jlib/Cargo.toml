@@ -2,7 +2,7 @@
 name = "xdvdfs-jlib"
 description = "Java JNI compatible XDVDFS bindings"
 version = "0.2.0"
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 xdvdfs = { version = "0.8.3", features = ["sync", "read", "std", "write"], default-features = false }
@@ -12,7 +12,7 @@ ciso = "0.2.1"
 splitfile = "0.2.0"
 
 [lib]
-crate_type = ["cdylib"]
+crate-type = ["cdylib"]
 
 [profile.release]
 strip = true
