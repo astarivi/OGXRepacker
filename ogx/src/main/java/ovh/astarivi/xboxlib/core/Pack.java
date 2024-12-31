@@ -18,10 +18,8 @@ import ovh.astarivi.xboxlib.gui.utils.GuiConfig;
 import javax.swing.*;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
@@ -101,16 +99,6 @@ public class Pack implements Runnable {
         addEventNow("Found %d valid entries to process".formatted(totalEntries));
 
         for (Path entry : inputItems) {
-            try {
-                Files.createDirectories(Utils.temporaryPath);
-                Utils.cleanTemp();
-            } catch (IOException e) {
-                SwingUtilities.invokeLater(() ->
-                        progressForm.processError("Failed to create or clear OGX temporary directory")
-                );
-                return;
-            }
-
             SwingUtilities.invokeLater(() -> progressForm.getCurrentProgress().setValue(0));
 
             entry = entry.toAbsolutePath();
@@ -189,7 +177,7 @@ public class Pack implements Runnable {
             final long[] extractedFiles = {0};
             xdvdfs.setPackListener(event ->
                 SwingUtilities.invokeLater(() -> {
-                    if (event.startsWith("Added file:")) {
+                    if (event.startsWith("Packed file:")) {
                         extractedFiles[0]++;
                     }
 
@@ -199,6 +187,20 @@ public class Pack implements Runnable {
 
                     progressForm.getCurrentProgress().setValue(progress);
                 })
+            );
+
+            xdvdfs.setUnpackListener(event ->
+                    SwingUtilities.invokeLater(() -> {
+                        if (event.startsWith("Unpacked file:")) {
+                            extractedFiles[0]++;
+                        }
+
+                        progressForm.addEvent(event);
+
+                        int progress = (int) ((extractedFiles[0] / ((float) entryStat.fileCount())) * 100);
+
+                        progressForm.getCurrentProgress().setValue(progress);
+                    })
             );
 
             Packer.PackProgress packerProgressTracker = percentage ->
@@ -216,6 +218,10 @@ public class Pack implements Runnable {
             }
 
             if (Files.isDirectory(entry)) {
+                if (packMode == GuiConfig.Pack.EXTRACT) {
+                    addEventNow("Skipping input. Folders cannot be extracted");
+                    continue;
+                }
                 packMode = GuiConfig.Pack.XDVDFS_REBUILD;
             }
 
@@ -228,7 +234,7 @@ public class Pack implements Runnable {
                             xdvdfs.packSplit(
                                     entry,
                                     packedImage,
-                                    config.split() == GuiConfig.Split.FATX ? FATX_LIMIT : entryStat.totalSize() / 2
+                                    config.split() == GuiConfig.Split.FATX ? FATX_LIMIT : (entryStat.totalSize() / 2) + 10_000_000
                             );
 
                             SplitUtils.rename(packedImage);
@@ -265,6 +271,9 @@ public class Pack implements Runnable {
                         packer.setListener(packerProgressTracker);
 
                         packer.conservativePack(false);
+                    }
+                    case EXTRACT -> {
+                        xdvdfs.unpack(entry, packedImage.getParent());
                     }
                     // This case should never trigger
                     default -> {

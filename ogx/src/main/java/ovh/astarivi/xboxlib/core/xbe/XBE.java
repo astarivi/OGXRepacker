@@ -19,7 +19,7 @@ public class XBE {
             header = new XBEData.XBEHeader(headerData);
             int certAddress = header.dwCertificateAddr - header.dwBaseAddr;
 
-            bbis.seek(bbis.getFilePointer() + certAddress);
+            bbis.seek((bbis.getFilePointer() - 376) + certAddress);
             bbis.read(rawCert);
             cert = new XBEData.XBECert(rawCert);
         } catch (IOException e) {

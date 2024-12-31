@@ -79,7 +79,8 @@ public record GuiConfig(
         XDVDFS_AUTO(0),
         XDVDFS_REBUILD(1),
         XDVDFS_TRIM(2),
-        XDVDFS_KEEP(3);
+        XDVDFS_KEEP(3),
+        EXTRACT(4);
 //        CISO(4);
         private final int value;
 

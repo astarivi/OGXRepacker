@@ -47,10 +47,10 @@ public class ProgressForm {
                     task.cancel(true);
                 }
 
-                try {
-                    Utils.cleanTemp();
-                } catch (Exception ignored) {
-                }
+//                try {
+//                    Utils.cleanTemp();
+//                } catch (Exception ignored) {
+//                }
             }
         });
 

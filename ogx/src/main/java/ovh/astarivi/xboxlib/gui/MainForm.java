@@ -79,10 +79,11 @@ public class MainForm {
         attacherCombo.addItemListener(new JComboListener("attacher"));
 
         packCombo.setModel(new DefaultComboBoxModel<>(new String[]{
-                "XISO (Auto)",
-                "XISO (Rebuild)",
-                "XISO (Trim)",
-                "XISO (Keep all)"
+                "XISO Auto",
+                "XISO Rebuild",
+                "XISO Trim",
+                "XISO Keep all",
+                "Extract"
 //                "CISO (CSO)"
         }));
 
