@@ -20,6 +20,11 @@ public class SplitUtils {
                 false
         );
 
+        // Check if we have a singular part (no splitting took place)
+        try(Stream<Path> fileStream = Files.list(baseFolder)) {
+            if (fileStream.filter(Files::isRegularFile).count() == 1) return;
+        }
+
         Files.move(firstImage, baseFolder.resolve(baseFileName + ".1.iso"));
 
         try(Stream<Path> fileStream = Files.list(baseFolder)) {

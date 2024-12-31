@@ -3,8 +3,10 @@ package ovh.astarivi.xboxlib.core;
 import org.tinylog.Logger;
 import ovh.astarivi.jxdvdfs.XDVDFS;
 import ovh.astarivi.jxdvdfs.base.XDVDFSException;
+import ovh.astarivi.jxdvdfs.base.XDVDFSStat;
 import ovh.astarivi.xboxlib.core.attacher.Attacher;
 import ovh.astarivi.xboxlib.core.naming.GameName;
+import ovh.astarivi.xboxlib.core.pack.Packer;
 import ovh.astarivi.xboxlib.core.split.SplitUtils;
 import ovh.astarivi.xboxlib.core.storage.OGXArchive;
 import ovh.astarivi.xboxlib.core.utils.Utils;
@@ -15,13 +17,18 @@ import ovh.astarivi.xboxlib.gui.utils.GuiConfig;
 
 import javax.swing.*;
 import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
 
 public class Pack implements Runnable {
+    // We are a bit under the actual FATX limit to avoid issues with Filezilla
+    public final static long FATX_LIMIT = 4_294_960_000L;
     private final GuiConfig config;
     private final ProgressForm progressForm;
 
@@ -114,7 +121,7 @@ public class Pack implements Runnable {
             ));
 
             // Stat
-            long[] entryStat;
+            XDVDFSStat entryStat;
             try {
                 entryStat = XDVDFSHelper.getStatFor(entry, xdvdfs);
             } catch (IOException e) {
@@ -129,32 +136,24 @@ public class Pack implements Runnable {
                 continue;
             }
 
-            addEventNow("Found %d files, totalling %dMB in size".formatted(
-                    entryStat[0],
-                    Math.floorDiv(entryStat[1], 1024 * 1024)
+            addEventNow("Found %d files, totalling %dMB in effective size".formatted(
+                    entryStat.fileCount(),
+                    Math.floorDiv(entryStat.totalSize(), 1024 * 1024)
             ));
 
-            // Extract XBE
-            Path extractedXbePath = Utils.temporaryPath.resolve("default.xbe");
-            try {
-                XDVDFSHelper.extractXBE(entry, extractedXbePath, xdvdfs);
+            // Get XBE
+            XBE extractedXbe;
+            try (RandomAccessFile xbeHandle = XDVDFSHelper.extractXBE(entry, xdvdfs)){
+                extractedXbe = new XBE(xbeHandle);
             } catch (IOException e) {
-                Logger.error("Error while extracting XBE for {}", entry);
+                Logger.error("Error while reading XBE for {}", entry);
                 Logger.error(e);
-                addEventNow("Error while extracting XBE, skipping");
+                addEventNow("Error while reading XBE, skipping");
                 continue;
             } catch (XDVDFSException e) {
-                Logger.error("Native error while extracting XBE for {}", entry);
+                Logger.error("Native error while reading XBE for {}", entry);
                 Logger.error(e);
-                addEventNow("Native error while extracting XBE, skipping");
-                continue;
-            }
-
-            XBE extractedXbe;
-            try {
-                extractedXbe = new XBE(extractedXbePath);
-            } catch (IOException e) {
-                addEventNow("Error while reading extracted XBE, skipping");
+                addEventNow("Native error while reading XBE, skipping");
                 continue;
             }
 
@@ -186,7 +185,7 @@ public class Pack implements Runnable {
                 progressForm.getCurrentProgress().setValue(0);
             });
 
-            // This is dumb, but I've used this dumb before
+            // This is dumb, but I've used this kind of dumb before
             final long[] extractedFiles = {0};
             xdvdfs.setPackListener(event ->
                 SwingUtilities.invokeLater(() -> {
@@ -196,32 +195,83 @@ public class Pack implements Runnable {
 
                     progressForm.addEvent(event);
 
-                    int progress = (int) ((extractedFiles[0] / ((float) entryStat[0])) * 100);
+                    int progress = (int) ((extractedFiles[0] / ((float) entryStat.fileCount())) * 100);
 
                     progressForm.getCurrentProgress().setValue(progress);
                 })
             );
 
+            Packer.PackProgress packerProgressTracker = percentage ->
+                    SwingUtilities.invokeLater(() -> progressForm.getCurrentProgress().setValue(percentage));
+
             if(Thread.interrupted()) {
                 return;
+            }
+
+            GuiConfig.Pack packMode = this.config.pack();
+
+            // FIXME
+            if (packMode == GuiConfig.Pack.XDVDFS_AUTO) {
+                packMode = GuiConfig.Pack.XDVDFS_REBUILD;
+            }
+
+            if (Files.isDirectory(entry)) {
+                packMode = GuiConfig.Pack.XDVDFS_REBUILD;
             }
 
             Path packedImage = currentOutputFolder.resolve(game.iso_name + ".iso");
             // Pack
             try {
-                if (config.split() == GuiConfig.Split.HALF) {
-                    xdvdfs.packSplit(
-                            entry,
-                            packedImage,
-                            (entryStat[1] / 2) + 7000000
-                    );
+                switch (packMode) {
+                    case XDVDFS_REBUILD -> {
+                        if (config.split() != GuiConfig.Split.NO) {
+                            xdvdfs.packSplit(
+                                    entry,
+                                    packedImage,
+                                    config.split() == GuiConfig.Split.FATX ? FATX_LIMIT : entryStat.totalSize() / 2
+                            );
 
-                    SplitUtils.rename(packedImage);
-                } else {
-                    xdvdfs.pack(
-                            entry,
-                            packedImage
-                    );
+                            SplitUtils.rename(packedImage);
+                        } else {
+                            xdvdfs.pack(
+                                    entry,
+                                    packedImage
+                            );
+                        }
+                    }
+                    case XDVDFS_TRIM -> {
+                        addEventNow("Using conservative, trimming packer. Current progress may not update until packing is finished");
+                        Packer packer = new Packer(
+                                entry,
+                                packedImage,
+                                config,
+                                entryStat
+                        );
+
+                        packer.setListener(packerProgressTracker);
+
+                        packer.conservativePack(true);
+                    }
+                    case XDVDFS_KEEP -> {
+                        addEventNow("Using conservative packer. Current progress may not update until packing is finished");
+
+                        Packer packer = new Packer(
+                                entry,
+                                packedImage,
+                                config,
+                                entryStat
+                        );
+
+                        packer.setListener(packerProgressTracker);
+
+                        packer.conservativePack(false);
+                    }
+                    // This case should never trigger
+                    default -> {
+                        Logger.error("Failed to choose best method for {}", entry);
+                        addEventNow("Image not recognized, unable to choose best method, skipping...");
+                        continue;
+                    }
                 }
             } catch (IOException e) {
                 Logger.error("Failed to pack image {}", entry);

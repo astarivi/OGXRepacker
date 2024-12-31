@@ -2,11 +2,13 @@ package ovh.astarivi.xboxlib.core.attacher;
 
 import org.tinylog.Logger;
 import ovh.astarivi.xboxlib.core.storage.OGXArchive;
+import ovh.astarivi.xboxlib.core.utils.XDVDFSHelper;
 import ovh.astarivi.xboxlib.core.xbe.XBE;
 import ovh.astarivi.xboxlib.gui.utils.GuiConfig;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
@@ -43,9 +45,14 @@ public class Attacher {
             throw new IOException(e);
         }
 
-        XBE attacherXbe = new XBE(outputFile);
+        XBE attacherXbe;
+        try (RandomAccessFile xbeHandle = new RandomAccessFile(outputFile.toFile(), "r")) {
+            attacherXbe = new XBE(xbeHandle);
+        }
 
+        // Yes, opening a file channel instead of reusing the RAF is a dumb idea.
         try (FileChannel axbe = FileChannel.open(outputFile, StandardOpenOption.WRITE)) {
+            // FIXME: THIS DOESN'T WORK!
             int certAddress = attacherXbe.header.dwCertificateAddr - attacherXbe.header.dwBaseAddr;
             ByteBuffer ogCert = ByteBuffer.wrap(defaultXbe.rawCert).order(ByteOrder.LITTLE_ENDIAN);
 

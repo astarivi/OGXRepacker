@@ -1,15 +1,23 @@
 package ovh.astarivi.xboxlib.core.utils;
 
+import org.jetbrains.annotations.NotNull;
 import org.tinylog.Logger;
 import ovh.astarivi.jxdvdfs.XDVDFS;
 import ovh.astarivi.jxdvdfs.base.XDVDFSException;
+import ovh.astarivi.jxdvdfs.base.XDVDFSFile;
+import ovh.astarivi.jxdvdfs.base.XDVDFSStat;
+import ovh.astarivi.xboxlib.core.split.SplitUtils;
+import ovh.astarivi.xboxlib.gui.ProgressForm;
+import ovh.astarivi.xboxlib.gui.utils.GuiConfig;
 
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 
+
 public class XDVDFSHelper {
-    public static long[] getStatFor(Path input, XDVDFS instance) throws IOException, XDVDFSException {
+    public static XDVDFSStat getStatFor(Path input, XDVDFS instance) throws IOException, XDVDFSException {
         if (Files.isRegularFile(input)) {
             return instance.stat(input);
         }
@@ -41,19 +49,21 @@ public class XDVDFSHelper {
             }
         });
 
-        return countAndSize;
+        return new XDVDFSStat(countAndSize[0], countAndSize[1], -1, -1);
     }
 
-    public static void extractXBE(Path input, Path output, XDVDFS xdvdfs) throws IOException, XDVDFSException {
+    public static @NotNull RandomAccessFile extractXBE(Path input, XDVDFS xdvdfs) throws IOException, XDVDFSException {
         if (Files.isDirectory(input)) {
-            Files.copy(input.resolve("default.xbe"), output, StandardCopyOption.REPLACE_EXISTING);
-            return;
+            return new RandomAccessFile(input.resolve("default.xbe").toFile(), "r");
         }
 
-        xdvdfs.unpackFile(
+        XDVDFSFile fileStat = xdvdfs.fileStat(
                 input,
-                output,
                 "/default.xbe"
         );
+
+        RandomAccessFile file = new RandomAccessFile(input.toFile(), "r");
+        file.seek(fileStat.offset());
+        return file;
     }
 }

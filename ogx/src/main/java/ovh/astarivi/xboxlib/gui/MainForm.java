@@ -79,7 +79,10 @@ public class MainForm {
         attacherCombo.addItemListener(new JComboListener("attacher"));
 
         packCombo.setModel(new DefaultComboBoxModel<>(new String[]{
-                "XDVDFS (XISO)",
+                "XISO (Auto)",
+                "XISO (Rebuild)",
+                "XISO (Trim)",
+                "XISO (Keep all)"
 //                "CISO (CSO)"
         }));
 
@@ -90,8 +93,8 @@ public class MainForm {
         packCombo.addItemListener(this::packComboChanged);
 
         splitCombo.setModel(new DefaultComboBoxModel<>(new String[]{
+                "Split at FATX limit",
                 "Split in half",
-//                "Split at FATX limit",
                 "Do not split"
         }));
 

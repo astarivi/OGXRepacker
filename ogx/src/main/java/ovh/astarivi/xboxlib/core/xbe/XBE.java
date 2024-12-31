@@ -12,18 +12,18 @@ public class XBE {
     public final XBEData.XBECert cert;
     public byte[] rawCert = new byte[464];
 
-    public XBE(Path xbePath) throws IOException {
-        try (RandomAccessFile bbis = new RandomAccessFile(xbePath.toFile(), "r")) {
+    public XBE(RandomAccessFile bbis) throws IOException {
+        try {
             byte[] headerData = new byte[376];
             bbis.read(headerData);
             header = new XBEData.XBEHeader(headerData);
             int certAddress = header.dwCertificateAddr - header.dwBaseAddr;
 
-            bbis.seek(certAddress);
+            bbis.seek(bbis.getFilePointer() + certAddress);
             bbis.read(rawCert);
             cert = new XBEData.XBECert(rawCert);
         } catch (IOException e) {
-            Logger.error("Error reading XBE: {}", xbePath);
+            Logger.error("Error parsing XBE from file with offset {}", bbis.getFilePointer());
             Logger.error(e);
             throw e;
         }

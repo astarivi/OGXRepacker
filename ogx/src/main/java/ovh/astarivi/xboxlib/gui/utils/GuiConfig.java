@@ -76,8 +76,11 @@ public record GuiConfig(
 
     @Getter
     public enum Pack {
-        XDVDFS(0),
-        CISO(1);
+        XDVDFS_AUTO(0),
+        XDVDFS_REBUILD(1),
+        XDVDFS_TRIM(2),
+        XDVDFS_KEEP(3);
+//        CISO(4);
         private final int value;
 
         Pack(int val) {
@@ -100,8 +103,9 @@ public record GuiConfig(
 
     @Getter
     public enum Split {
-        HALF(0),
-        NO(1);
+        FATX(0),
+        HALF(1),
+        NO(2);
         private final int value;
 
         Split(int val) {
