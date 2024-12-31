@@ -300,6 +300,10 @@ public class Pack implements Runnable {
 
             addEventNow("Packing finished for %s".formatted(game.title));
 
+            if (config.pack() == GuiConfig.Pack.EXTRACT) {
+                continue;
+            }
+
             int finalCurrentEntry = currentEntry;
             if (config.attacher() == GuiConfig.Attacher.NONE) {
                 SwingUtilities.invokeLater(() ->  {
