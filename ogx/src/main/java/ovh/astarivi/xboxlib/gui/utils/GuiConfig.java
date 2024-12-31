@@ -27,7 +27,8 @@ public record GuiConfig(
     @Getter
     public enum Naming {
         OGXREPACKER(0),
-        KEEP_FILENAME(1);
+        REPACKINATOR(1),
+        KEEP_FILENAME(2);
         private final int value;
 
         Naming(int val) {

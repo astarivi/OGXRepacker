@@ -149,7 +149,7 @@ public class Pack implements Runnable {
             OGXArchive.Game game = GameName.getForGame(
                     extractedXbe,
                     entry,
-                    config.naming() == GuiConfig.Naming.OGXREPACKER
+                    config.naming()
             );
 
             addEventNow("Entry identified as %s".formatted(game.title));

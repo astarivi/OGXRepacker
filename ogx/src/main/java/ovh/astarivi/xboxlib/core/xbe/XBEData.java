@@ -186,31 +186,29 @@ public class XBEData {
             return code;
         }
 
-        public String getAltRegionCode() {
+        public String getRepackinatorRegionCode() {
             if(regionUSA && regionJapan && regionEurope) {
                 return "GLO";
             }
 
-            if(!regionUSA && !regionJapan && !regionEurope) {
-                return "UNK";
-            }
-
             if(regionUSA && regionJapan) {
-                return "U-J";
+                return "USA-JPN";
             }
 
             if (regionUSA && regionEurope) {
-                return "U-P";
+                return "USA-PAL";
             }
 
+            // Unused?
             if (regionEurope && regionJapan) {
-                return "P-J";
+                return "JPN-PAL";
             }
 
             if (regionUSA) return "USA";
             if (regionEurope) return "PAL";
+            if (regionJapan) return "JPN";
 
-            return "JAP";
+            return "";
         }
     }
 

@@ -56,6 +56,7 @@ public class MainForm {
 
         namingCombo.setModel(new DefaultComboBoxModel<>(new String[]{
                 "OGXRepacker",
+                "Repackinator",
                 "Keep filename"
         }));
 
