@@ -83,16 +83,16 @@ public class MainForm {
                 "XISO Auto",
                 "XISO Rebuild",
                 "XISO Trim",
-                "XISO Keep all",
-                "Extract"
+                "XISO",
+                "Extract only"
 //                "CISO (CSO)"
         }));
+
+        packCombo.addItemListener(this::packComboChanged);
 
         packCombo.setSelectedIndex(
                 appProperties.getIntProperty("pack", 0)
         );
-
-        packCombo.addItemListener(this::packComboChanged);
 
         splitCombo.setModel(new DefaultComboBoxModel<>(new String[]{
                 "Split at FATX limit",
@@ -189,12 +189,16 @@ public class MainForm {
     private void packComboChanged(ItemEvent e) {
         new JComboListener("pack").itemStateChanged(e);
 
-//        int index = packCombo.getSelectedIndex();
-//
-//        // CISO does the splitting by itself
-//        if (index == 1){
-//            splitCombo.setEnabled(false);
-//        }
+        GuiConfig.Pack pack = GuiConfig.Pack.getFromValue(packCombo.getSelectedIndex());
+
+        // EXTRACT doesn't support these
+        if (pack == GuiConfig.Pack.EXTRACT){
+            attacherCombo.setEnabled(false);
+            splitCombo.setEnabled(false);
+        } else {
+            splitCombo.setEnabled(true);
+            attacherCombo.setEnabled(true);
+        }
     }
 
     // Lots of user checks

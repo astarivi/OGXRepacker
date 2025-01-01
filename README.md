@@ -21,50 +21,97 @@ Double-clicking it works too, but only if your system has Java 21 set as the def
 
 # Features
 
-- Cross-platform
+- Cross-platform, multi-arch
 - Maximum input image compatibility
 - Simple and intuitive user interface
 - Able to split output images on the fly
-- Always rebuilds and strips input images, producing smaller output images
+- Able to rebuild, trim, keep or extract the input image
 - Includes all known attachers, from Cerbios to DriveImageUtils
-- Leverages Repackinator content database, but isn't limited to it
+- Leverages Repackinator content database
 
 # Configuration
 
 Every feature available in OGXRepacker is listed here.
 
-- ### Naming Convention
-    - OGXRepacker: Uses the OGXRepacker filename system, consisting of the Repackinator title, but uses a single 
-    letter for the region.
-    - Keep filename: Keeps the input filename, and uses it for the output.
-- ### Create Attacher
-    - Cerbios: Creates a Cerbios attacher, compatible with CCI images (although CCI isn't yet supported)
-    - Stellar: Creates a Stellar attacher, compatible with CSO images
-    - DriveImageUtils (Legacy): Creates a DriveImageUtils attacher, compatible with XISO images and old softmods.
-    - None: Skips the attacher, and produces only output images.
-- ### Pack Mode
-    - XDVDFS (XISO): Packs the image as a XDVDFS compliant image
-- ### Split Image
-    - Split in half: Splits the output image in two parts of approximately the same size.
-    - Do not split: Produces a single .iso output image.
+- ## Naming Convention
+    - ### OGXRepacker
+      - Uses the OGXRepacker filename system, consisting of the Repackinator title, but uses a single letter for the region.
+      - Example: `Halo 2 (G)`
+    - ### Repackinator
+      - Uses the Repackinator naming convention, three letter region codes.
+      - Example: `Halo 2 (GLO)`
+    - ### Keep filename
+      - Keeps the input filename, and uses it for the output.
+      - Example: `HALO 2`
+
+- ## Pack Mode
+  - ### XISO Auto
+    - Automatically chooses the best `XISO` packing mode for the detected input files.
+    - Will always try to produce the smallest output image possible.
+    - Will default to `XISO Rebuild` if **Naming Convention** is set to `Keep filename`
+  - ### XISO Rebuild
+    - Rebuilds the input image, or packs an input folder.
+    - Often produces smaller images with no performance penalties.
+    - A few games are known to fail to boot when this mode is used. Use `XISO Auto`, which checks for these cases.
+  - ### XISO Trim
+    - Trims the empty sectors at the end of the image, leading to modest file size savings.
+    - Redump images are the only known input that benefits from this mode.
+    - If the input is detected to be a folder, this mode defaults to `XISO Rebuild`.
+  - ### XISO
+    - Keeps the input image intact, and passes it through.
+    - If a Redump image is used, this mode will strip unnecessary data from the image, but will keep the XISO partition untouched.
+    - If the input is detected to be a folder, this mode defaults to `XISO Rebuild`.
+  - ### Extract only
+    - Extracts the contents of an input image.
+    - Only `.iso` images are supported.
+    - If input is a folder, it will be skipped.
+    - Incompatible with Attachers and Split modes.
+
+- ## Create Attacher
+    - ### Cerbios
+      - Creates a Cerbios attacher.
+      - Supports CCI images.
+      - No support for CSO images.
+      - Best overall compatibility.
+    - ### Stellar 
+      - Creates a Project Stellar attacher.
+      - Supports CSO images.
+      - No support for CCI images.
+    - ### DriveImageUtils (Legacy) 
+      - Creates a DriveImageUtils attacher, compatible with old softmods.
+      - No support for CCI images.
+      - No support for CSO images.
+      - Most consoles support newer attachers, use only if needed.
+    - ### None
+      - Skips the attacher, and produces only output images.
+
+Note: All attachers support regular XISO images.
+
+- ## Split Image
+    - ### Split at FATX limit
+      - Splits the output image only when it's close to the FATX size limit.
+    - ### Split in half
+      - Splits the output image in two parts of approximately the same size.
+      - If input file is too small, only a single file will be produced.
+    - ### Do not split
+      - Produces a single `.iso` output image.
 
 # Preview
 <img src="https://i.ibb.co/h9MWXzH/Screenshot-2024-03-18-221926.png" />
 
 # System Requirements
 - OS: Windows, Linux
-- Architecture: x64, x86, ARM64, ARM
+- Architecture: x64, x86, ARM64, ARM, RISCV
 - Display: A graphical system for display
 - Java >17 (Java 21 recommended)
 
 # Planned Features
 
 - macOS support (this is theoretically supported, but I lack a Mac system to build with)
-- More image splitting options
-- Extract the .tbn image from the game default.xbe
+- Extraction of the .tbn image from the game default.xbe
 - CSO support
 - CCI support
-- Command line support
+- Theme support
 
 # Credits
 

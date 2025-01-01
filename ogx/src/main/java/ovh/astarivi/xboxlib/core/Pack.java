@@ -25,8 +25,8 @@ import java.util.stream.Stream;
 
 
 public class Pack implements Runnable {
-    // We are a bit under the actual FATX limit to avoid issues with Filezilla
-    public final static long FATX_LIMIT = 4_294_960_000L;
+    // We are a bit under the actual FATX limit to avoid transfer issues
+    public final static long FATX_LIMIT = 4_280_000_000L;
     private final GuiConfig config;
     private final ProgressForm progressForm;
 
