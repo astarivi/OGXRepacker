@@ -1,13 +1,19 @@
 plugins {
     id 'java'
-    id 'io.freefair.lombok' version '8.6'
     id 'idea'
     id 'application'
+    id 'io.freefair.lombok' version '8.6'
+    id 'edu.sc.seis.launch4j' version '3.0.6'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group = 'ovh.astarivi.xboxlib'
-version = '1.0'
+version = '1.1'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
 // Dist option 1 (:ogx:distZip)
 // Also serves as a development entrypoint (:ogx:build run)
@@ -22,9 +28,13 @@ jar {
     }
 }
 
-shadowJar {
-    mergeServiceFiles()
-    archiveFileName = 'OGXRepacker.jar'
+// Dist option 3  (:ogx:createExe)
+launch4j {
+    mainClassName = 'ovh.astarivi.xboxlib.Main'
+    icon = "${projectDir}/src/main/resources/ovh/astarivi/xboxlib/res/icon.ico"
+    libraryDir = "ogxrepacker"
+    outfile = "OGXRepacker.exe"
+    jreMinVersion = "17"
 }
 
 repositories {
@@ -37,7 +47,6 @@ repositories {
 configurations {
     antTask
 }
-
 
 dependencies {
     implementation project(':jxdvdfs')
