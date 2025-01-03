@@ -212,9 +212,8 @@ public class Pack implements Runnable {
 
             GuiConfig.Pack packMode = this.config.pack();
 
-            // FIXME
             if (packMode == GuiConfig.Pack.XDVDFS_AUTO) {
-                packMode = GuiConfig.Pack.XDVDFS_REBUILD;
+                packMode = OGXArchive.TRIM_ONLY_TITLES.contains(game.title_id) ? GuiConfig.Pack.XDVDFS_TRIM : GuiConfig.Pack.XDVDFS_REBUILD;
             }
 
             if (Files.isDirectory(entry)) {
