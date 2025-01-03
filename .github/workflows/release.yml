@@ -34,7 +34,6 @@ jobs:
           mv ./ogx/build/distributions/ogx-*.zip out/
           mv ./ogx/build/libs/ogx-*-all.jar out/
           cd ./ogx/build/launch4j && zip -r ../../../out/ogx-windows.zip .
-          zip -rj ./out/ogx-windows.zip ./ogx/build/launch4j/*
 
       - name: Release
         uses: softprops/action-gh-release@v2
