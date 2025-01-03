@@ -97,7 +97,7 @@ Note: All attachers support regular XISO images.
       - Produces a single `.iso` output image.
 
 # Preview
-<img src="https://i.ibb.co/h9MWXzH/Screenshot-2024-03-18-221926.png" />
+<img src="https://i.ibb.co/y4NLGLj/image.png" />
 
 # System Requirements
 - OS: Windows, Linux
