@@ -34,6 +34,7 @@ launch4j {
     icon = "${projectDir}/src/main/resources/ovh/astarivi/xboxlib/res/icon.ico"
     libraryDir = "ogxrepacker"
     outfile = "OGXRepacker.exe"
+    downloadUrl = "https://adoptium.net/temurin/releases/"
     jreMinVersion = "17"
 }
 
