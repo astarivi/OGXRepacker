@@ -42,10 +42,9 @@ public class MainForm {
                         )
                 )
         );
+        frame.setMinimumSize(new Dimension(570, 301));
         frame.setContentPane(rootPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setResizable(false);
         // Center the window
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
