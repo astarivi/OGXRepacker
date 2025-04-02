@@ -23,19 +23,19 @@
         <border type="none"/>
         <children>
           <grid id="67d14" layout-manager="FormLayout">
-            <rowspec value="center:max(d;4px):noGrow"/>
+            <rowspec value="center:max(d;4px):grow"/>
             <rowspec value="top:4dlu:noGrow"/>
-            <rowspec value="center:max(d;4px):noGrow"/>
+            <rowspec value="center:max(d;4px):grow"/>
             <rowspec value="top:4dlu:noGrow"/>
-            <rowspec value="center:max(d;4px):noGrow"/>
+            <rowspec value="center:max(d;4px):grow"/>
             <rowspec value="top:4dlu:noGrow"/>
-            <rowspec value="center:max(d;4px):noGrow"/>
+            <rowspec value="center:max(d;4px):grow"/>
             <rowspec value="top:4dlu:noGrow"/>
-            <rowspec value="center:d:noGrow"/>
+            <rowspec value="center:d:grow"/>
             <rowspec value="top:4dlu:noGrow"/>
-            <rowspec value="center:d:noGrow"/>
+            <rowspec value="center:d:grow"/>
             <colspec value="fill:max(d;4dlu):noGrow"/>
-            <colspec value="left:m:noGrow"/>
+            <colspec value="left:m:grow(0.15)"/>
             <colspec value="left:4dlu:noGrow"/>
             <colspec value="fill:d:grow"/>
             <colspec value="left:4dlu:noGrow"/>
@@ -48,10 +48,10 @@
             <children>
               <component id="1090" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false">
+                  <grid row="8" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="163" height="17"/>
                   </grid>
-                  <forms/>
+                  <forms defaultalign-horz="false"/>
                 </constraints>
                 <properties>
                   <text value="Input Folder:"/>
@@ -59,10 +59,10 @@
               </component>
               <component id="9c442" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="10" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false">
+                  <grid row="10" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="163" height="17"/>
                   </grid>
-                  <forms/>
+                  <forms defaultalign-horz="false"/>
                 </constraints>
                 <properties>
                   <alignmentX value="0.0"/>
@@ -87,6 +87,7 @@
                       <forms defaultalign-horz="false"/>
                     </constraints>
                     <properties>
+                      <maximumSize width="-1" height="-1"/>
                       <minimumSize width="-1" height="-1"/>
                       <preferredSize width="200" height="34"/>
                     </properties>
@@ -106,7 +107,7 @@
               </grid>
               <grid id="70119" layout-manager="FormLayout">
                 <rowspec value="center:d:noGrow"/>
-                <colspec value="left:345px:grow"/>
+                <colspec value="left:d:grow"/>
                 <colspec value="left:5px:noGrow"/>
                 <colspec value="center:34px:noGrow"/>
                 <constraints>
@@ -122,6 +123,8 @@
                       <forms defaultalign-horz="false"/>
                     </constraints>
                     <properties>
+                      <maximumSize width="-1" height="-1"/>
+                      <minimumSize width="-1" height="-1"/>
                       <preferredSize width="200" height="34"/>
                     </properties>
                   </component>
@@ -140,17 +143,18 @@
               </grid>
               <component id="edaa3" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                  <forms/>
+                  <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <forms defaultalign-horz="false" defaultalign-vert="false"/>
                 </constraints>
                 <properties>
+                  <minimumSize width="127" height="17"/>
                   <text value="Naming Convention:"/>
                 </properties>
               </component>
               <component id="cd8f7" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                  <forms/>
+                  <grid row="6" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <forms defaultalign-horz="false"/>
                 </constraints>
                 <properties>
                   <text value="Split Image:"/>
@@ -158,8 +162,8 @@
               </component>
               <component id="b712" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                  <forms/>
+                  <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <forms defaultalign-horz="false"/>
                 </constraints>
                 <properties>
                   <text value="Attacher:"/>
@@ -167,10 +171,10 @@
               </component>
               <component id="50ae9" class="javax.swing.JLabel">
                 <constraints>
-                  <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false">
+                  <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
                     <preferred-size width="163" height="17"/>
                   </grid>
-                  <forms/>
+                  <forms defaultalign-horz="false"/>
                 </constraints>
                 <properties>
                   <alignmentX value="0.0"/>
@@ -212,9 +216,9 @@
           <grid id="75425" layout-manager="FormLayout">
             <rowspec value="center:d:grow"/>
             <colspec value="fill:4dlu:noGrow"/>
-            <colspec value="fill:100px:noGrow"/>
+            <colspec value="fill:150px:noGrow"/>
             <colspec value="left:d:grow"/>
-            <colspec value="fill:100px:noGrow"/>
+            <colspec value="fill:150px:noGrow"/>
             <colspec value="fill:4dlu:noGrow"/>
             <constraints>
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
