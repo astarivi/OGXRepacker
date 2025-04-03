@@ -4,10 +4,10 @@ import lombok.Getter;
 import ovh.astarivi.xboxlib.core.Pack;
 import ovh.astarivi.xboxlib.core.Threading;
 import ovh.astarivi.xboxlib.core.utils.SmartScroller;
-import ovh.astarivi.xboxlib.core.utils.Utils;
 import ovh.astarivi.xboxlib.gui.utils.GuiConfig;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -26,16 +26,17 @@ public class ProgressForm {
     private JButton cancelButton;
     private JScrollPane logsScrollPane;
 
+    /// GUI testing constructor, no-op.
+    public ProgressForm(JFrame parentFrame){
+        config = null;
+        this.createWindow(parentFrame);
+        dialog.setVisible(true);
+    }
+
     public ProgressForm(JFrame parentFrame, GuiConfig config) {
         this.config = config;
-        dialog = new JDialog(parentFrame, "OGXRepacker - Repacking in progress", true);
+        this.createWindow(parentFrame);
 
-        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        dialog.setContentPane(rootPanel);
-        dialog.pack();
-        dialog.setResizable(false);
-        // Center the window
-        dialog.setLocationRelativeTo(null);
         new SmartScroller(logsScrollPane);
 
         logsText.setEditable(false);
@@ -46,11 +47,6 @@ public class ProgressForm {
                 if (task != null && !task.isDone()) {
                     task.cancel(true);
                 }
-
-//                try {
-//                    Utils.cleanTemp();
-//                } catch (Exception ignored) {
-//                }
             }
         });
 
@@ -66,6 +62,16 @@ public class ProgressForm {
                 dialog.dispose();
             }
         });
+    }
+
+    public void createWindow(JFrame parentFrame) {
+        dialog = new JDialog(parentFrame, "OGXRepacker - Repacking in progress", true);
+
+        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        dialog.setContentPane(rootPanel);
+        dialog.setMinimumSize(new Dimension(640, 360));
+        // Center window
+        dialog.setLocationRelativeTo(null);
     }
 
     public void addEvent(String event) {
