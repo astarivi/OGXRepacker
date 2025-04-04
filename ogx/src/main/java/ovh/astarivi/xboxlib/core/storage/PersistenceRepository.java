@@ -4,14 +4,18 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.tinylog.Logger;
+import ovh.astarivi.xboxlib.gui.utils.PlatformUtils;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Map;
 
 @Getter
 public class PersistenceRepository {
     @Getter(AccessLevel.NONE)
     private static volatile PersistenceRepository _instance = null;
+    @Getter(AccessLevel.NONE)
+    public static final Path persistenceFolder = PlatformUtils.getPersistentFolder("ogxrepacker");
     private final AppProperties appProperties;
     private final Map<String, OGXArchive.Game> gamesArchive;
 

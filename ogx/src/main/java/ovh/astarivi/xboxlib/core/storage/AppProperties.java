@@ -8,14 +8,13 @@ import java.util.Properties;
 
 
 public class AppProperties extends Properties {
-    private static final String subFolder = "ogxrepacker/config/";
     private final String filename;
     private final File localFile;
 
     public AppProperties(String filename) {
         this.filename = filename;
 
-        localFile = new File(subFolder + filename);
+        localFile = PersistenceRepository.persistenceFolder.resolve("config").resolve(filename).toFile();
         if (!localFile.exists()) {
             ensureDirectory();
             return;
