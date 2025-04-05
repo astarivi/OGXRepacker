@@ -6,18 +6,18 @@
     <a href="https://github.com/astarivi/OGXRepacker/releases"><img src="https://img.shields.io/badge/download-36222c?logoColor=white&style=for-the-badge" alt="Download badge"></a>
 </p>
 
-OGXRepacker is a general-purpose, performance-first, and simplistic XISO processing software for Original Xbox games. It specializes in converting game images to XISO images while also offering the option to create an attacher.
+OGXRepacker is a general-purpose, simplistic XISO processing software for Original Xbox games. It specializes in converting game images to XISO images while also offering the option to create an attacher.
 
 If you’re unsure what this means, simply leave the settings at their defaults, select an input and output folder, and press "Process" to get started.
 
 # Quickstart
-For all supported platforms, Java version 17 or higher is a must.
 
 ## Windows
 Windows-specific executables are available. Windows on ARM is **not** supported. Both 64-bit and 32-bit architectures are fully supported.
 
-- Download the latest [Windows executable package](https://github.com/astarivi/OGXRepacker/releases/latest/download/ogx-windows.zip) release and extract it.
-- Run `OGXRepacker.exe`
+- ### The easiest way to get started is to download the latest [OGX Windows installer](https://github.com/astarivi/OGXRepacker/releases/latest/download/OGXRepacker_x64_Setup.exe). This includes everything you will need to run OGX.
+- The [bundled Windows portable](https://github.com/astarivi/OGXRepacker/releases/latest/download/ogx-windows-bundled.zip) distribution contains everything the installable distribution does, in a portable package.
+- The [minimal Windows portable](https://github.com/astarivi/OGXRepacker/releases/latest/download/ogx-windows-minimal.zip) distribution only has the essentials, and requires Java >17 to be installed in your system.
 
 ## Linux
 Linux has its own distributable package, which includes a wrapper script for launch.
@@ -125,7 +125,7 @@ Note: All attachers support regular XISO images.
 <img src="https://i.ibb.co/y4NLGLj/image.png" />
 
 # Supported Systems
-- OS: Windows (10 & 11), Linux (modern glibc)
+- OS: Windows (XP, Vista, 7, 8, 10 & 11), Linux (modern glibc)
 - Architecture: x64, x86, ARM64, ARM, RISCV
 - Display: A graphical system for display (this is a graphical tool)
 - Java: 17 or higher
