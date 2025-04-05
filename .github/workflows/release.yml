@@ -26,14 +26,29 @@ jobs:
       - name: Build with Gradle Wrapper
         run: |
           chmod +x gradlew
-          ./gradlew :ogx:createExe :ogx:shadowJar :ogx:distZip
+          ./gradlew :ogx:createExe :ogx:shadowJar :ogx:distZip --no-daemon
 
-      - name: Move artifacts
+      - name: Build Windows distributions
         run: |
           mkdir out
+          sudo apt-get update
+          sudo apt-get install -y nsis
+          cp ./ogx/NOTICE ./ogx/build/launch4j
+          cd ./ogx/build/launch4j
+          zip -r ../../../out/ogx-windows-minimal.zip .
+          wget -O jre.zip https://api.adoptium.net/v3/binary/latest/21/ga/windows/x64/jre/hotspot/normal/eclipse
+          unzip jre.zip
+          rm -f jre.zip
+          mv jdk-*-jre jre
+          zip -r ../../../out/ogx-windows-bundled.zip .
+          cd ../..
+          makensis OGXRepackerInstaller.nsi
+          mv OGXRepacker_x64_Setup.exe ../out
+
+      - name: Move other artifacts
+        run: |
           mv ./ogx/build/distributions/ogx-*.zip out/
           mv ./ogx/build/libs/ogx-*-all.jar out/
-          cd ./ogx/build/launch4j && zip -r ../../../out/ogx-windows.zip .
 
       - name: Release
         uses: softprops/action-gh-release@v2

@@ -8,7 +8,7 @@ plugins {
 }
 
 group = 'ovh.astarivi.xboxlib'
-version = '1.3'
+version = '1.4'
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -28,6 +28,12 @@ jar {
     }
 }
 
+shadowJar {
+    from('NOTICE') {
+        into('META-INF')
+    }
+}
+
 // Dist option 3  (:ogx:createExe)
 launch4j {
     mainClassName = 'ovh.astarivi.xboxlib.Main'
@@ -36,6 +42,7 @@ launch4j {
     outfile = "OGXRepacker.exe"
     downloadUrl = "https://adoptium.net/temurin/releases/"
     jreMinVersion = "17"
+    bundledJrePath = "jre"
 }
 
 repositories {
@@ -95,5 +102,16 @@ test {
     useJUnitPlatform()
     testLogging {
         events "passed", "skipped", "failed"
+    }
+}
+
+distributions {
+    main {
+        contents {
+            from("NOTICE") {
+                into("")
+                rename { "NOTICE" }
+            }
+        }
     }
 }
