@@ -42,6 +42,8 @@ public class NativeLoader {
 
         if (effectiveArch == null) {
             // Emulation support
+            Logger.warn("Couldn't find an effective native library, defaulting to x86_64 for emu support");
+            Logger.warn("OS: {}, Arch: {}", System.getProperty("os.name"), System.getProperty("os.arch"));
             effectiveArch = "x86_64";
         }
 

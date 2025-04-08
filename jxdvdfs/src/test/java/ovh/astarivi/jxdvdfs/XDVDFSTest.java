@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 public class XDVDFSTest {
 
@@ -36,6 +39,54 @@ public class XDVDFSTest {
                 Path.of("D:\\xbox\\test\\redump.iso"),
                 Path.of("D:\\xbox\\test\\output.iso")
         );
+    }
+
+    @Test
+    @DisplayName("XDVDFS CISO")
+    void testCISO() throws XDVDFSException {
+        XDVDFS xdvdfs = new XDVDFS();
+        xdvdfs.setPackListener(Logger::info);
+
+        xdvdfs.compressCISO(
+                Path.of("D:\\xbox\\test\\redump.iso"),
+                Path.of("D:\\xbox\\test\\output.cso"),
+                524288000,
+                true
+        );
+    }
+
+    @Test
+    @DisplayName("XDVDFS CISO Interruptibility")
+    public void testCompressInterruptibility() throws Exception {
+        Thread worker = new Thread(() -> {
+            try {
+                XDVDFS xdvdfs = new XDVDFS();
+                xdvdfs.setPackListener(Logger::info);
+
+                xdvdfs.compressCISO(
+                        Path.of("D:\\xbox\\test\\redump.iso"),
+                        Path.of("D:\\xbox\\test\\output.cso"),
+                        524_288_000,
+                        true
+                );
+            } catch (Exception e) {
+                Logger.info(e);
+            }
+        });
+
+        long start = System.currentTimeMillis();
+        worker.start();
+
+        // Wait 3 seconds then interrupt
+        Thread.sleep(3000);
+        worker.interrupt();
+
+        worker.join(5000);
+
+        long duration = System.currentTimeMillis() - start;
+
+        assertFalse(worker.isAlive(), "Thread should have stopped after interrupt.");
+        assertTrue(duration < 10_000, "Thread did not stop within 5 seconds.");
     }
 
     @Test
