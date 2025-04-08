@@ -81,8 +81,10 @@ public record GuiConfig(
         XDVDFS_REBUILD(1),
         XDVDFS_TRIM(2),
         XDVDFS_KEEP(3),
-        EXTRACT(4);
-//        CISO(4);
+        CISO_AUTO(4),
+        CISO_REBUILD(5),
+        CISO_KEEP(6),
+        EXTRACT(7);
         private final int value;
 
         Pack(int val) {

@@ -83,8 +83,10 @@ public class MainForm {
                 "XISO Rebuild",
                 "XISO Trim",
                 "XISO",
+                "CISO (CSO) Auto",
+                "CISO (CSO) Rebuild",
+                "CISO (CSO)",
                 "Extract only"
-//                "CISO (CSO)"
         }));
 
         packCombo.addItemListener(this::packComboChanged);

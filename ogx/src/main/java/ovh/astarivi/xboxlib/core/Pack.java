@@ -21,6 +21,8 @@ import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 
@@ -175,20 +177,6 @@ public class Pack implements Runnable {
 
             // This is dumb, but I've used this kind of dumb before
             final long[] extractedFiles = {0};
-            xdvdfs.setPackListener(event ->
-                SwingUtilities.invokeLater(() -> {
-                    if (event.startsWith("Packed file:")) {
-                        extractedFiles[0]++;
-                    }
-
-                    progressForm.addEvent(event);
-
-                    int progress = (int) ((extractedFiles[0] / ((float) entryStat.fileCount())) * 100);
-
-                    progressForm.getCurrentProgress().setValue(progress);
-                })
-            );
-
             xdvdfs.setUnpackListener(event ->
                     SwingUtilities.invokeLater(() -> {
                         if (event.startsWith("Unpacked file:")) {
@@ -216,6 +204,10 @@ public class Pack implements Runnable {
                 packMode = OGXArchive.TRIM_ONLY_TITLES.contains(game.title_id) ? GuiConfig.Pack.XDVDFS_TRIM : GuiConfig.Pack.XDVDFS_REBUILD;
             }
 
+            if (packMode == GuiConfig.Pack.CISO_AUTO) {
+                packMode = OGXArchive.TRIM_ONLY_TITLES.contains(game.title_id) ? GuiConfig.Pack.CISO_KEEP : GuiConfig.Pack.CISO_REBUILD;
+            }
+
             if (Files.isDirectory(entry)) {
                 if (packMode == GuiConfig.Pack.EXTRACT) {
                     addEventNow("Skipping input. Folders cannot be extracted");
@@ -224,7 +216,46 @@ public class Pack implements Runnable {
                 packMode = GuiConfig.Pack.XDVDFS_REBUILD;
             }
 
+            switch (packMode) {
+                case XDVDFS_REBUILD, XDVDFS_KEEP, XDVDFS_TRIM -> {
+                    xdvdfs.setPackListener(event ->
+                            SwingUtilities.invokeLater(() -> {
+                                if (event.startsWith("Packed file:")) {
+                                    extractedFiles[0]++;
+                                }
+
+                                progressForm.addEvent(event);
+
+                                int progress = (int) ((extractedFiles[0] / ((float) entryStat.fileCount())) * 100);
+
+                                progressForm.getCurrentProgress().setValue(progress);
+                            })
+                    );
+                }
+                case CISO_KEEP, CISO_REBUILD -> {
+                    Pattern pattern = Pattern.compile("Compressing sectors \\((\\d+)/(\\d+)\\)");
+
+                    xdvdfs.setPackListener(event ->
+                            SwingUtilities.invokeLater(() -> {
+                                progressForm.addEvent(event);
+
+                                Matcher matcher = pattern.matcher(event);
+
+                                if (!matcher.find()) return;
+
+                                int current = Integer.parseInt(matcher.group(1));
+                                int total = Integer.parseInt(matcher.group(2));
+
+                                int progress = (int) ((current / ((float) total)) * 100);
+
+                                progressForm.getCurrentProgress().setValue(progress);
+                            })
+                    );
+                }
+            }
+
             Path packedImage = currentOutputFolder.resolve(game.iso_name + ".iso");
+
             // Pack
             try {
                 switch (packMode) {
@@ -236,7 +267,7 @@ public class Pack implements Runnable {
                                     config.split() == GuiConfig.Split.FATX ? FATX_LIMIT : (entryStat.totalSize() / 2) + 10_000_000
                             );
 
-                            SplitUtils.rename(packedImage);
+                            SplitUtils.rename(packedImage, "iso", true);
                         } else {
                             xdvdfs.pack(
                                     entry,
@@ -244,21 +275,10 @@ public class Pack implements Runnable {
                             );
                         }
                     }
-                    case XDVDFS_TRIM -> {
-                        addEventNow("Using conservative, trimming packer. Current progress may not update until packing is finished");
-                        Packer packer = new Packer(
-                                entry,
-                                packedImage,
-                                config,
-                                entryStat
-                        );
-
-                        packer.setListener(packerProgressTracker);
-
-                        packer.conservativePack(true);
-                    }
-                    case XDVDFS_KEEP -> {
-                        addEventNow("Using conservative packer. Current progress may not update until packing is finished");
+                    case XDVDFS_TRIM, XDVDFS_KEEP -> {
+                        addEventNow("Using conservative%s packer. Current progress may not update until packing is finished".formatted(
+                                packMode == GuiConfig.Pack.XDVDFS_TRIM ? ", trimming" : ""
+                        ));
 
                         Packer packer = new Packer(
                                 entry,
@@ -269,11 +289,27 @@ public class Pack implements Runnable {
 
                         packer.setListener(packerProgressTracker);
 
-                        packer.conservativePack(false);
+                        packer.conservativePack(packMode == GuiConfig.Pack.XDVDFS_TRIM);
                     }
-                    case EXTRACT -> {
-                        xdvdfs.unpack(entry, packedImage.getParent());
+                    case CISO_KEEP, CISO_REBUILD -> {
+                        addEventNow("Starting CSO compressor. Current progress may not update until a few things are ready");
+                        addEventNow("Don't panic if things look stuck");
+
+                        packedImage = currentOutputFolder.resolve(game.iso_name + ".cso");
+
+                        long splitSize = config.split() == GuiConfig.Split.FATX ? FATX_LIMIT : (entryStat.totalSize() / 2) + 10_000_000L;
+
+                        xdvdfs.compressCISO(
+                                entry,
+                                packedImage,
+                                // Is this dumb? yes. Does this work? yes.
+                                config.split() == GuiConfig.Split.NO ? 106300440576L : splitSize,
+                                packMode == GuiConfig.Pack.CISO_REBUILD
+                        );
+
+                        SplitUtils.rename(packedImage, "cso", false);
                     }
+                    case EXTRACT -> xdvdfs.unpack(entry, packedImage.getParent());
                     // This case should never trigger
                     default -> {
                         Logger.error("Failed to choose best method for {}", entry);

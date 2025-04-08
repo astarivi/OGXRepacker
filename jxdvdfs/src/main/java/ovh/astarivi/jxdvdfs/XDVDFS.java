@@ -19,6 +19,7 @@ public class XDVDFS {
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     private static boolean libraryLoaded = false;
+    // TODO: Create a "compression" listener
     private XDVDFSListener packListener = null;
     private XDVDFSListener unpackListener = null;
 

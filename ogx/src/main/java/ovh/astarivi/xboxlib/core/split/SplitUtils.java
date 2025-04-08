@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 public class SplitUtils {
     private static final Pattern pattern = Pattern.compile("\\d+$");
 
-    public static void rename(Path firstImage) throws IOException {
+    public static void rename(Path firstImage, String extension, boolean skipSingle) throws IOException {
         Path baseFolder = firstImage.getParent();
         String baseFileName = Utils.removeFileExtension(
                 firstImage.getFileName().toString(),
@@ -22,10 +22,10 @@ public class SplitUtils {
 
         // Check if we have a singular part (no splitting took place)
         try(Stream<Path> fileStream = Files.list(baseFolder)) {
-            if (fileStream.filter(Files::isRegularFile).count() == 1) return;
+            if (skipSingle && fileStream.filter(Files::isRegularFile).count() == 1) return;
         }
 
-        Files.move(firstImage, baseFolder.resolve(baseFileName + ".1.iso"));
+        Files.move(firstImage, baseFolder.resolve(baseFileName + ".1.%s".formatted(extension)));
 
         try(Stream<Path> fileStream = Files.list(baseFolder)) {
             fileStream
@@ -36,7 +36,7 @@ public class SplitUtils {
                         if (!matcher.find()) return;
 
                         try {
-                            Files.move(path, baseFolder.resolve(baseFileName + ".%s.iso".formatted(matcher.group())));
+                            Files.move(path, baseFolder.resolve(baseFileName + ".%s.%s".formatted(matcher.group(), extension)));
                         } catch (IOException e) {
                             Logger.error("Failed to rename {}", path);
                             Logger.error(e);
