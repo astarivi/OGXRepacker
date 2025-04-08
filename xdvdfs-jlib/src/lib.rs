@@ -5,8 +5,9 @@ use jni::JNIEnv;
 use std::path::PathBuf;
 
 use crate::image::wrapper::SplitBufWriterWrapper;
+use crate::java::is_thread_interrupted;
 use jni::objects::{JObject, JString};
-use jni::sys::{jlong, jlongArray};
+use jni::sys::{jboolean, jlong, jlongArray};
 use splitfile::SplitFile;
 use std::sync::mpsc;
 use std::thread;
@@ -38,10 +39,11 @@ pub extern "system" fn Java_ovh_astarivi_jxdvdfs_XDVDFS_pack<'local>(
     let result_handle = thread::spawn(move || {
         let mut target_image = std::io::BufWriter::with_capacity(1024 * 1024, target_image);
 
-        image::write::pack(&source_path, &mut target_image, sender)
+        image::write::pack(&source_path, &mut target_image, &sender)
     });
 
     while let Ok(data) = receiver.recv() {
+        is_thread_interrupted(&mut env);
         java::callback(&mut env, &object, data);
     }
 
@@ -80,10 +82,56 @@ pub extern "system" fn Java_ovh_astarivi_jxdvdfs_XDVDFS_packSplit<'local>(
         let mut target_image =
             SplitBufWriterWrapper(std::io::BufWriter::with_capacity(1024 * 1024, target_image));
 
-        image::write::pack(&source_path, &mut target_image, sender)
+        image::write::pack(&source_path, &mut target_image, &sender)
     });
 
     while let Ok(data) = receiver.recv() {
+        is_thread_interrupted(&mut env);
+        java::callback(&mut env, &object, data);
+    }
+
+    let result = result_handle.join();
+
+    let return_value = match result {
+        Ok(val) => val,
+        Err(err) => {
+            java::throw_exception(&mut env, format!("Threading error: {:?}", err));
+            return;
+        }
+    };
+
+    if let Err(err) = return_value {
+        java::throw_exception(&mut env, format!("Packing error: {}", err));
+    }
+}
+
+#[no_mangle]
+pub extern "system" fn Java_ovh_astarivi_jxdvdfs_XDVDFS_ciso<'local>(
+    mut env: JNIEnv<'local>,
+    object: JObject<'local>,
+    source: JString<'local>,
+    destination: JString<'local>,
+    split_size: jlong,
+    rebuild: jboolean,
+) {
+    let source_path: PathBuf = PathBuf::from(java::decode_string(&mut env, &source));
+    let target_path: PathBuf = PathBuf::from(java::decode_string(&mut env, &destination));
+    let volume_size = split_size as u64;
+    let should_split = rebuild != 0;
+
+    let (sender, receiver) = mpsc::channel();
+
+    let result_handle = thread::spawn(move || {
+        let target_image = SplitFile::create(target_path, volume_size)?;
+
+        let mut target_image =
+            SplitBufWriterWrapper(std::io::BufWriter::with_capacity(1024 * 1024, target_image));
+
+        image::write::ciso(&source_path, &mut target_image, should_split, &sender)
+    });
+
+    while let Ok(data) = receiver.recv() {
+        is_thread_interrupted(&mut env);
         java::callback(&mut env, &object, data);
     }
 
@@ -176,6 +224,7 @@ pub extern "system" fn Java_ovh_astarivi_jxdvdfs_XDVDFS_unpack<'local>(
     });
 
     while let Ok(data) = receiver.recv() {
+        is_thread_interrupted(&mut env);
         java::unpack_callback(&mut env, &object, data);
     }
 

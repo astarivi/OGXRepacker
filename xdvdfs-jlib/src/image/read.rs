@@ -3,8 +3,10 @@ use anyhow::{anyhow, bail};
 use std::fs::File;
 use std::io::{ErrorKind, Read, Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf, MAIN_SEPARATOR_STR};
+use std::sync::atomic::Ordering::Relaxed;
 use std::sync::mpsc::Sender;
 use xdvdfs::layout::SECTOR_SIZE;
+use crate::java::INTERRUPTED;
 
 pub fn stat(img_path: &Path) -> anyhow::Result<[i64; 4]> {
     let mut img = open_image_raw(img_path)?;
@@ -54,6 +56,10 @@ pub fn unpack(
     let tree = volume.root_table.file_tree(&mut img)?;
 
     for (dir, dirent) in &tree {
+        if INTERRUPTED.load(Relaxed) {
+            bail!("Interrupted");
+        }
+
         let dir = &dir
             .trim_start_matches('/')
             .split('/')

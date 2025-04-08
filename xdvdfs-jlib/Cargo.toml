@@ -5,10 +5,10 @@ version = "0.2.0"
 edition = "2021"
 
 [dependencies]
-xdvdfs = { version = "0.8.3", features = ["sync", "read", "std", "write"], default-features = false }
+xdvdfs = { version = "0.8.3", features = ["sync", "read", "std", "write", "ciso_support"], default-features = false }
 jni = "0.21.1"
 anyhow = "1.0.81"
-ciso = "0.2.1"
+ciso = { version = "0.2.1", features = ["sync"], default-features = false }
 splitfile = "0.2.0"
 
 [lib]
@@ -19,4 +19,4 @@ strip = true
 lto = true
 opt-level = "z"
 codegen-units = 1
-panic = "abort"
+panic = "unwind"

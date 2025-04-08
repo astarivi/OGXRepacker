@@ -1,3 +1,5 @@
+use std::sync::atomic::AtomicBool;
+use std::sync::atomic::Ordering::Relaxed;
 use jni::objects::{JObject, JString, JValue};
 use jni::strings::JavaStr;
 use jni::JNIEnv;
@@ -36,11 +38,26 @@ pub fn throw_exception(env: &mut JNIEnv, message: String) {
 }
 
 pub fn decode_string(env: &mut JNIEnv, j_string: &JString) -> String {
-    return <JavaStr<'_, '_, '_> as Into<String>>::into(match env.get_string(j_string) {
+    <JavaStr<'_, '_, '_> as Into<String>>::into(match env.get_string(j_string) {
         Ok(java_string) => java_string,
         Err(err) => {
             throw_exception(env, format!("Error while decoding param string: {}", err));
             std::process::exit(1);
         }
-    });
+    })
 }
+
+pub fn is_thread_interrupted(env: &mut JNIEnv) {
+    let thread_class = env.find_class("java/lang/Thread").expect("Java Thread class not found. Are we interrupted?");
+
+    let result = env.call_static_method(thread_class, "interrupted", "()Z", &[])
+        .expect("Failed to call Thread interrupted Java method");
+    
+    let val = result.z().expect("Failed to unwrap thread status boolean");
+    
+    if val == true {
+        INTERRUPTED.store(true, Relaxed);
+    }
+}
+
+pub static INTERRUPTED: AtomicBool = AtomicBool::new(false);

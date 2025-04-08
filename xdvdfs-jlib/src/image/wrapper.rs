@@ -1,6 +1,8 @@
+use std::fs::File;
 use splitfile::SplitFile;
-use std::io::{BufWriter, Result, Seek, SeekFrom, Write};
-use xdvdfs::blockdev::BlockDeviceWrite;
+use std::io::{BufReader, BufWriter, Read, Result, Seek, SeekFrom, Write};
+use std::path::Path;
+use xdvdfs::blockdev::{BlockDeviceWrite, OffsetWrapper};
 
 pub struct SplitBufWriterWrapper(pub BufWriter<SplitFile>);
 
@@ -48,5 +50,41 @@ impl BlockDeviceWrite<std::io::Error> for SplitBufWriterWrapper {
 
     fn len(&mut self) -> core::result::Result<u64, std::io::Error> {
         self.len()
+    }
+}
+
+pub struct SplitBufReader {
+    inner: BufReader<File>,
+    offset: u64,
+}
+
+impl SplitBufReader {
+    pub fn new(path: &Path) -> anyhow::Result<Self> {
+        let mut img = File::options().read(true).open(path)?;
+
+        let mut offset = OffsetWrapper::new(img.try_clone()?)?;
+        let offset = offset.seek(SeekFrom::Start(0))?;
+
+        img.seek(SeekFrom::Start(offset))?;
+
+        Ok(Self {
+            inner: BufReader::new(img),
+            offset
+        })
+    }
+}
+
+impl Read for SplitBufReader {
+    fn read(&mut self, buf: &mut [u8]) -> Result<usize> {
+        std::io::Read::read(&mut self.inner, buf)
+    }
+}
+
+impl Seek for SplitBufReader {
+    fn seek(&mut self, pos: SeekFrom) -> Result<u64> {
+        match pos {
+            SeekFrom::Start(pos) => self.inner.seek(SeekFrom::Start(self.offset + pos)),
+            pos => self.inner.seek(pos),
+        }
     }
 }
