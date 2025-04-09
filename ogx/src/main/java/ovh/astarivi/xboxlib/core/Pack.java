@@ -103,6 +103,7 @@ public class Pack implements Runnable {
         for (Path entry : inputItems) {
             SwingUtilities.invokeLater(() -> progressForm.getCurrentProgress().setValue(0));
 
+            // TODO: better folder support here
             entry = entry.toAbsolutePath();
             currentEntry++;
 
@@ -297,17 +298,14 @@ public class Pack implements Runnable {
 
                         packedImage = currentOutputFolder.resolve(game.iso_name + ".cso");
 
-                        long splitSize = config.split() == GuiConfig.Split.FATX ? FATX_LIMIT : (entryStat.totalSize() / 2) + 10_000_000L;
-
                         xdvdfs.compressCISO(
                                 entry,
                                 packedImage,
-                                // Is this dumb? yes. Does this work? yes.
-                                config.split() == GuiConfig.Split.NO ? 106300440576L : splitSize,
+                                config.split() != GuiConfig.Split.NO,
                                 packMode == GuiConfig.Pack.CISO_REBUILD
                         );
 
-                        SplitUtils.rename(packedImage, "cso", false);
+//                        SplitUtils.rename(packedImage, "cso", false);
                     }
                     case EXTRACT -> xdvdfs.unpack(entry, packedImage.getParent());
                     // This case should never trigger

@@ -11,6 +11,7 @@ use jni::sys::{jboolean, jlong, jlongArray};
 use splitfile::SplitFile;
 use std::sync::mpsc;
 use std::thread;
+use crate::image::split::SplitOutput;
 
 #[no_mangle]
 pub extern "system" fn Java_ovh_astarivi_jxdvdfs_XDVDFS_pack<'local>(
@@ -111,23 +112,37 @@ pub extern "system" fn Java_ovh_astarivi_jxdvdfs_XDVDFS_ciso<'local>(
     object: JObject<'local>,
     source: JString<'local>,
     destination: JString<'local>,
-    split_size: jlong,
+    split: jboolean,
     rebuild: jboolean,
 ) {
     let source_path: PathBuf = PathBuf::from(java::decode_string(&mut env, &source));
     let target_path: PathBuf = PathBuf::from(java::decode_string(&mut env, &destination));
-    let volume_size = split_size as u64;
-    let should_split = rebuild != 0;
+    let should_rebuild = rebuild != 0;
+    let should_split = split != 0;
 
     let (sender, receiver) = mpsc::channel();
 
     let result_handle = thread::spawn(move || {
-        let target_image = SplitFile::create(target_path, volume_size)?;
+        return if should_split {
+            let mut target_image = SplitOutput::new(target_path);
 
-        let mut target_image =
-            SplitBufWriterWrapper(std::io::BufWriter::with_capacity(1024 * 1024, target_image));
+            image::write::ciso(&source_path, &mut target_image, should_rebuild, &sender)
+        } else {
+            let target_image = match std::fs::File::options()
+                .write(true)
+                .truncate(true)
+                .create(true)
+                .open(target_path) {
+                Ok(f) => f,
+                Err(err) => {
+                    panic!("Error creating target file due to error {}", err);
+                }
+            };
 
-        image::write::ciso(&source_path, &mut target_image, should_split, &sender)
+            let mut target_image = std::io::BufWriter::with_capacity(1024 * 1024, target_image);
+
+            image::write::ciso(&source_path, &mut target_image, should_rebuild, &sender)
+        }
     });
 
     while let Ok(data) = receiver.recv() {

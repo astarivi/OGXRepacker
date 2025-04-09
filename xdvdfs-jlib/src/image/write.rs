@@ -1,6 +1,9 @@
+use crate::image::img::{open_image_raw, BufFileSectorLinearFs};
 use crate::image::wrapper::SplitBufReader;
+use crate::java::INTERRUPTED;
 use anyhow::bail;
 use ciso::write::{AsyncWriter, CSOCreationError, SectorReader};
+use std::io::{Seek, Write};
 use std::path::PathBuf;
 use std::sync::atomic::Ordering::Relaxed;
 use std::sync::mpsc::Sender;
@@ -9,10 +12,8 @@ use xdvdfs::util;
 use xdvdfs::write::fs;
 use xdvdfs::write::fs::{CisoSectorInput, SectorLinearBlockDevice, SectorLinearBlockFilesystem, StdFilesystem, XDVDFSFilesystem};
 use xdvdfs::write::img::{create_xdvdfs_image, ProgressInfo};
-use crate::image::img::{open_image_raw, BufFileSectorLinearFs};
-use crate::java::INTERRUPTED;
 
-pub fn pack<H: BlockDeviceWrite<std::io::Error> + std::io::Write + std::io::Seek>(
+pub fn pack<H: BlockDeviceWrite<std::io::Error> + Write + Seek>(
     source_path: &PathBuf,
     target_image: &mut H,
     progress_sender: &Sender<String>,
@@ -37,12 +38,12 @@ pub fn pack<H: BlockDeviceWrite<std::io::Error> + std::io::Write + std::io::Seek
     Ok(())
 }
 
-pub fn ciso<H: BlockDeviceWrite<std::io::Error> + std::io::Write + std::io::Seek>(
+pub fn ciso<E, O: AsyncWriter<E>>(
     source_path: &PathBuf,
-    target_image: &mut H,
+    target_image: &mut O,
     rebuild: bool,
     progress_sender: &Sender<String>,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<()> where O: Write + Seek {
     let meta = std::fs::metadata(source_path)?;
 
     if rebuild {

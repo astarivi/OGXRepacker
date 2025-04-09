@@ -26,7 +26,7 @@ public class XDVDFS {
     private native void pack(String source, String destination) throws XDVDFSException;
     private native void packSplit(String source, String destination, long partSizeBytes) throws XDVDFSException;
     private native void unpack(String source, String destination) throws XDVDFSException;
-    private native void ciso(String source, String destination, long partSizeBytes, boolean rebuild) throws XDVDFSException;
+    private native void ciso(String source, String destination, boolean split, boolean rebuild) throws XDVDFSException;
     private native void ufile(String source, String destination, String internalSearch) throws XDVDFSException;
     private native long[] stat(String source) throws XDVDFSException;
     private native long[] fstat(String source, String internalSearch) throws XDVDFSException;
@@ -100,10 +100,10 @@ public class XDVDFS {
      *
      * @param input The file or directory to convert to XISO.
      * @param output The path to save the resulting image to.
-     * @param splitSize The size of each part, in bytes
+     * @param split Should the image be split?. Location of splits is up to the compressor.
      * @param rebuild True to fully rebuild the XISO image. Must be true for directories.
      */
-    public void compressCISO(@NotNull Path input, @NotNull Path output, long splitSize, boolean rebuild) throws XDVDFSException, IllegalArgumentException {
+    public void compressCISO(@NotNull Path input, @NotNull Path output, boolean split, boolean rebuild) throws XDVDFSException, IllegalArgumentException {
         Path inputAbsolute = input.toAbsolutePath();
 
         if (rebuild && Files.isDirectory(inputAbsolute)) {
@@ -113,7 +113,7 @@ public class XDVDFS {
         this.ciso(
                 inputAbsolute.toString(),
                 output.toAbsolutePath().toString(),
-                splitSize,
+                split,
                 rebuild
         );
     }

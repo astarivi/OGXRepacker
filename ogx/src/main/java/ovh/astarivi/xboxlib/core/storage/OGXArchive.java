@@ -44,7 +44,10 @@ public class OGXArchive {
             "434D0024", // IndyCar Series 2005
             "4D53000B", // NBA Inside Drive 2004
             "56550026", // The Chronicles of Riddick: Escape from Butcher Bay
-            "56550031" // Leisure Suit Larry: Magna Cum Laude
+            "56550031", // Leisure Suit Larry: Magna Cum Laude
+            "49500008", // FALLOUT - BROTHERHOOD OF STEEL (USA-JPN)
+            "4947000E", // MAGIC - T.G - BATTLEGROUNDS (GLO)
+            "55530005" // T.C GHOST RECON 2 (GLO)
     );
 
     @JsonIgnoreProperties(ignoreUnknown = true)
