@@ -6,7 +6,7 @@
     <a href="https://github.com/astarivi/OGXRepacker/releases"><img src="https://img.shields.io/badge/download-36222c?logoColor=white&style=for-the-badge" alt="Download badge"></a>
 </p>
 
-OGXRepacker is a general-purpose, simplistic XISO processing software for Original Xbox games. It specializes in converting game images to XISO images while also offering the option to create an attacher.
+OGXRepacker is a general-purpose XISO processing software for Original Xbox games. It specializes in converting game images to XISO images while also offering the option to create an attacher.
 
 If you’re unsure what this means, simply leave the settings at their defaults, select an input and output folder, and press "Process" to get started.
 
@@ -44,6 +44,12 @@ This release works on both Windows and Linux. Use this if you experience problem
 - Run with `java -jar ogx-VERSION-all.jar`
 - If Java version 17 or higher is associated with .jar files, double-clicking works too.
 
+# Usage
+
+OGXRepacker is a batch processing tool for game files.  Before starting, make sure to set both the Input and Output folders.
+Then, place your `.iso` files or game folders (that contain a `default.xbe` file) into the Input folder. 
+Review your configuration, and click "Process" to begin.
+
 # Features
 
 - Cross-platform, multi-arch
@@ -67,6 +73,7 @@ Every feature available in OGXRepacker is listed here.
         - Example: `Halo 2 (GLO)`
     - ### Keep filename
         - Keeps the input filename and uses it for the output.
+        - This mode disables all game title metadata fetching, making `Auto` modes default to `Rebuild`.
         - Example: `HALO 2`
 
 - ## Pack Mode
@@ -86,6 +93,19 @@ Every feature available in OGXRepacker is listed here.
         - Keeps the input image intact and passes it through.
         - If a Redump image is used, this mode will strip unnecessary data from the image but will keep the XISO partition untouched.
         - Defaults to `XISO Rebuild` if the input is detected to be a folder.
+    - ### CISO (CSO) Auto
+        - Automatically chooses the best `CISO` mode for the detected input files.
+        - Will try to produce the smallest output image possible.
+        - Defaults to `XISO Rebuild` if **Naming Convention** is set to `Keep filename`.
+    - ### CISO (CSO) Rebuild
+        - Rebuilds the input image (or creates an image from a folder) before compressing to `CISO`.
+        - Often produces smaller images with virtually no performance penalties, and fast conversion times.
+        - A few games are known to fail to boot when this mode is used. Use `CISO (CSO) Auto`, which checks for these cases.
+    - ### CISO (CSO)
+        - This mode will compress the input image, with no other changes done to it.
+        - Significantly slower conversion times.
+        - If a Redump image is used, this mode will strip unnecessary data from the image but will keep the game partition untouched.
+        - Defaults to `CISO (CSO) Rebuild` if the input is detected to be a folder.
     - ### Extract only
         - Extracts the contents of an input image.
         - Only `.iso` images are supported.
@@ -96,11 +116,11 @@ Every feature available in OGXRepacker is listed here.
     - ### Cerbios
         - Creates a Cerbios attacher.
         - Supports CCI images.
-        - Does not support CSO images.
-        - Best overall compatibility.
+        - Supports CISO (CSO) images.
+        - Best overall compatibility, should be your first choice.
     - ### Stellar
         - Creates a Project Stellar attacher.
-        - Supports CSO images.
+        - Supports CISO (CSO) images.
         - Does not support CCI images.
     - ### DriveImageUtils (Legacy)
         - Creates a DriveImageUtils attacher, compatible with old softmods.
@@ -121,11 +141,15 @@ Note: All attachers support regular XISO images.
     - ### Do not split
         - Produces a single `.iso` output image.
 
+Note: For most purposes, `Split at FATX limit` is good enough.
+
+Note 2: When processing compressed images (`CISO (CSO)`, `CCI`), both split modes will act the same, and
+the position of the splits is up to the compressor.
 # Preview
 <img src="https://i.ibb.co/y4NLGLj/image.png" />
 
 # Supported Systems
-- OS: Windows (XP, Vista, 7, 8, 10 & 11), Linux (modern glibc)
+- OS: Windows (7, 8, 10 & 11), Linux (modern glibc)
 - Architecture: x64, x86, ARM64, ARM, RISCV
 - Display: A graphical system for display (this is a graphical tool)
 - Java: 17 or higher
@@ -134,7 +158,6 @@ Note: All attachers support regular XISO images.
 
 - macOS support (this is theoretically supported, but I currently lack access to a Mac system to build with)
 - Extraction of the .tbn image from the game default.xbe
-- CSO support
 - CCI support
 - Theme support
 

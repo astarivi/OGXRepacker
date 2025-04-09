@@ -50,7 +50,7 @@ public class XDVDFSTest {
         xdvdfs.compressCISO(
                 Path.of("D:\\xbox\\test\\redump.iso"),
                 Path.of("D:\\xbox\\test\\output.cso"),
-                524288000,
+                true,
                 true
         );
     }
@@ -66,7 +66,7 @@ public class XDVDFSTest {
                 xdvdfs.compressCISO(
                         Path.of("D:\\xbox\\test\\redump.iso"),
                         Path.of("D:\\xbox\\test\\output.cso"),
-                        524_288_000,
+                        true,
                         true
                 );
             } catch (Exception e) {

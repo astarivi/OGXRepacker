@@ -6,9 +6,6 @@ import ovh.astarivi.jxdvdfs.XDVDFS;
 import ovh.astarivi.jxdvdfs.base.XDVDFSException;
 import ovh.astarivi.jxdvdfs.base.XDVDFSFile;
 import ovh.astarivi.jxdvdfs.base.XDVDFSStat;
-import ovh.astarivi.xboxlib.core.split.SplitUtils;
-import ovh.astarivi.xboxlib.gui.ProgressForm;
-import ovh.astarivi.xboxlib.gui.utils.GuiConfig;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;

@@ -103,7 +103,6 @@ public class Pack implements Runnable {
         for (Path entry : inputItems) {
             SwingUtilities.invokeLater(() -> progressForm.getCurrentProgress().setValue(0));
 
-            // TODO: better folder support here
             entry = entry.toAbsolutePath();
             currentEntry++;
 
